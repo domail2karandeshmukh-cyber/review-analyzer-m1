@@ -9,4 +9,6 @@ assert normalize_review("  Good   product  ") == "good product"
 # Test 3: Unknown review
 assert classify_review("Average product") == "unknown"
 
-print("All 3 tests passed!")
+assert classify_review("Bad product") == "negative"
+
+print("All 4 tests passed!")
