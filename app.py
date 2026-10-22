@@ -1,5 +1,5 @@
 def normalize_review(text):
-    return text.strip().lower()
+    return " ".join(text.lower().split())
 
 
 def classify_review(text):
