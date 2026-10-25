@@ -155,7 +155,7 @@ export default function Board() {
               </div>
               <div className="cols" style={{ gridTemplateColumns: '1.25fr 1fr', alignItems: 'start' }}>
                 <div>
-                  <LecChart printSafe height={210} series={[{ dist: P!.inherent, kind: 'inh', label: 'Inherent' }, { dist: P!.residual, kind: 'res', label: 'Residual' }]} tolerance={tolerance} toleranceLabel="Appetite" />
+                  <LecChart printSafe height={185} series={[{ dist: P!.inherent, kind: 'inh', label: 'Inherent' }, { dist: P!.residual, kind: 'res', label: 'Residual' }]} tolerance={tolerance} toleranceLabel="Appetite" />
                   <p className="note">Solid: residual. Dashed: inherent. Red: combined appetite {fmtMoneyShort(tolerance)}.</p>
                 </div>
                 <table className="bt">
