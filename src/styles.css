@@ -449,8 +449,8 @@ table.t tr.dim td { opacity: .5; }
 .auth-link, .auth-chain { display: none; }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1500px) { .ticker { display: none; } }
-@media (max-width: 1640px) { .user-chip .who { display: none; } .user-chip { padding: 3px; } }
+@media (max-width: 1720px) { .ticker { display: none; } }
+@media (max-width: 1880px) { .user-chip .who { display: none; } .user-chip { padding: 3px; } }
 @media (max-width: 1200px) {
   .g-main, .g-main-wide { grid-template-columns: minmax(0, 1fr); }
   .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -503,3 +503,5 @@ table.t tr.dim td { opacity: .5; }
 .auth-path { animation: dash 2.4s linear infinite; }
 @keyframes dash { to { stroke-dashoffset: -28; } }
 .auth-side h1 em { font-style: italic; }
+.user-chip { flex-shrink: 0; }
+.user-chip .who b, .user-chip .who span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; display: block; }
