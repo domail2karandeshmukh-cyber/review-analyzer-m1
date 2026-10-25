@@ -37,9 +37,9 @@ export default function Access() {
           <div className="ac-glow" aria-hidden />
           <Avatar name={owner.name} size="lg" />
           <div style={{ minWidth: 0 }}>
-            <div className="row" style={{ gap: 8 }}><span className="lvl owner"><Crown size={11} />Owner</span><span className="xs muted">{owner.note}</span></div>
+            <div className="row" style={{ gap: 8 }}><span className="lvl owner"><Crown size={11} />Owner</span></div>
             <div className="ac-name">{owner.name}</div>
-            <div className="small muted">Designed and built NOVATECH IRM · business role {owner.business_role}</div>
+            <div className="small muted">Platform owner · business role {owner.business_role}</div>
           </div>
         </div>
       )}

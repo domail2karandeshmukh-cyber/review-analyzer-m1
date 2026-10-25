@@ -204,7 +204,7 @@ function ShellInner({ children }: { children: ReactNode }) {
         <div className={isBleed ? '' : 'content'}>{children}</div>
         {!isBleed && (
           <footer className="app-foot">
-            <div className="row" style={{ gap: 8 }}><Logo size={20} /><span><b>NOVATECH IRM</b> · created by Karan Deshmukh</span></div>
+            <div className="row" style={{ gap: 8 }}><Logo size={20} /><span><b>NOVATECH IRM</b> · ESAIP Group 1</span></div>
             <span>NOVATECH Services is the fictional ESAIP case company · simulated feeds and executions are labelled</span>
           </footer>
         )}

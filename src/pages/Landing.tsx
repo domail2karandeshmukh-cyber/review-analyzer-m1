@@ -34,8 +34,9 @@ const TRUST: [React.ReactNode, string, string][] = [
 ];
 
 const TEAM = [
-  ['Vijay Bhosale', 'RSSI / CISO', 'Admin'], ['Vandana Madem', 'Chief Executive Officer', 'Member'], ['Nandini Vadlamudi', 'Cybersecurity Analyst', 'Member'],
-  ['Srija Poudapally', 'Finance Director (CFO / DAF)', 'Member'], ['Pavan Sanam', 'IT Operations Manager', 'Member'],
+  ['Karan Deshmukh', 'Project Manager / Risk Coordinator', ''],
+  ['Vijay Bhosale', 'RSSI / CISO', ''], ['Vandana Madem', 'Chief Executive Officer', ''], ['Nandini Vadlamudi', 'Cybersecurity Analyst', ''],
+  ['Srija Poudapally', 'Finance Director (CFO / DAF)', ''], ['Pavan Sanam', 'IT Operations Manager', ''],
 ];
 
 export default function Landing() {
@@ -109,15 +110,10 @@ export default function Landing() {
       <section className="lp-sec" id="team">
         <div className="lp-wrap">
           <div className="lp-kicker">ESAIP · MSc Risk Management · Group 1</div>
-          <h2>Designed and built by Karan Deshmukh.</h2>
-          <div className="lp-creator">
-            <span className="avatar lg">KD</span>
-            <div><b>Karan Deshmukh</b><span>Creator and platform owner · Project Manager / Risk Coordinator in the NOVATECH case</span></div>
-            <span className="lvl owner">Owner</span>
-          </div>
-          <p className="lp-lead">The Group 1 team plays the NOVATECH roles in the live scenarios. Their business role decides what each person may assess, approve or execute.</p>
+          <h2>The team behind NOVATECH.</h2>
+          <p className="lp-lead">Each member plays a NOVATECH role in the live scenarios. Their business role decides what they may assess, approve or execute.</p>
           <div className="lp-team">
-            {TEAM.map(([n, r, l]) => <div key={n} className="lp-person"><span className="avatar lg">{n.split(' ').map(x => x[0]).join('')}</span><div><b>{n}</b><span>{r}</span></div>{l === 'Admin' && <span className="lvl admin" style={{ marginLeft: 'auto' }}>Admin</span>}</div>)}
+            {TEAM.map(([n, r]) => <div key={n} className="lp-person"><span className="avatar lg">{n.split(' ').map(x => x[0]).join('')}</span><div><b>{n}</b><span>{r}</span></div></div>)}
           </div>
           <div className="lp-cta">
             <div><h3>Ready to see it live?</h3><p>Sign in with your personal account. Your role decides what you may do.</p></div>
@@ -129,7 +125,7 @@ export default function Landing() {
       <footer className="lp-foot">
         <div className="lp-wrap row between wrap" style={{ gap: 10 }}>
           <span>NOVATECH Services is a fictional company used for the ESAIP case study. Detection feeds and device executions are simulated and labelled as such.</span>
-          <span>Created by Karan Deshmukh · © 2026</span>
+          <span>ESAIP · MSc Risk Management · Group 1 · © 2026</span>
         </div>
       </footer>
     </div>
