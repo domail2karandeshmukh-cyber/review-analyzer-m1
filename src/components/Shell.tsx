@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Inbox, ShieldAlert, Building2, ListChecks, Stamp, Siren, Server, PlayCircle, ScrollText,
-  FileBarChart2, Network, BookOpen, Bell, Search, Menu, LogOut, BellRing, ChevronDown, X, Moon, Sun, CornerDownLeft,
+  FileBarChart2, Network, BookOpen, Bell, Search, Menu, LogOut, BellRing, ChevronDown, X, CornerDownLeft,
 } from 'lucide-react';
 import { useRpc, useSession } from '../lib/session';
 import { rpc } from '../lib/supabase';
@@ -12,132 +12,118 @@ import { Avatar, Badge, useToast } from './ui';
 
 type NavItem = { to: string; label: string; icon: ReactNode; count?: number; hot?: boolean };
 
-function useTheme() {
-  const [t, setT] = useState<string>(() => { try { return localStorage.getItem('grc-theme') ?? 'light'; } catch { return 'light'; } });
-  useEffect(() => { document.documentElement.dataset.theme = t; try { localStorage.setItem('grc-theme', t); } catch { /* ignore */ } }, [t]);
-  return [t, setT] as const;
-}
-
 export function Shell({ children }: { children: ReactNode }) {
   const { current, memberships, setOrg, signOut, orgId } = useSession();
   const [open, setOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [more, setMore] = useState(false);
   const [cmd, setCmd] = useState(false);
-  const [theme, setTheme] = useTheme();
   const loc = useLocation();
-  useEffect(() => { setOpen(false); setMenu(false); }, [loc.pathname]);
+  useEffect(() => { setOpen(false); setMenu(false); setMore(false); }, [loc.pathname]);
+  useEffect(() => { document.documentElement.dataset.theme = 'dark'; }, []);
   useEffect(() => {
     const k = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setCmd(c => !c); } };
     window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k);
   }, []);
 
   const work = useRpc<any>('grc_my_work', { p_org: orgId }, { poll: 15000 });
+  const ov = useRpc<any>('grc_overview', { p_org: orgId }, { poll: 30000 });
+  const chain = useRpc<any>('grc_verify_audit_chain', {}, { poll: 120000 });
   const taskCount = (work.data?.tasks?.length ?? 0) + (work.data?.incidents?.length ?? 0);
   const approvals = (work.data?.tasks ?? []).filter((t: any) => ['approve', 'post_review', 'assess'].includes(t.task)).length;
+  const isHome = loc.pathname === '/';
 
-  const nav: { section: string; items: NavItem[] }[] = [
-    { section: 'Act', items: [
-      { to: '/', label: 'Briefing', icon: <LayoutDashboard size={17} /> },
-      { to: '/workspace', label: 'My workspace', icon: <Inbox size={17} />, count: taskCount, hot: taskCount > 0 },
-      { to: '/approvals', label: 'Approval center', icon: <Stamp size={17} />, count: approvals, hot: approvals > 0 },
-      { to: '/incidents', label: 'Incidents', icon: <Siren size={17} /> },
-      { to: '/actions', label: 'Action plans', icon: <ListChecks size={17} /> },
-    ]},
-    { section: 'Understand risk', items: [
-      { to: '/risks', label: 'Risk portfolio', icon: <ShieldAlert size={17} /> },
-      { to: '/departments', label: 'Departments', icon: <Building2 size={17} /> },
-      { to: '/assets', label: 'Assets and devices', icon: <Server size={17} /> },
-    ]},
-    { section: 'Prove', items: [
-      { to: '/scenarios', label: 'Scenario center', icon: <PlayCircle size={17} /> },
-      { to: '/audit', label: 'Audit trail', icon: <ScrollText size={17} /> },
-      { to: '/reports', label: 'Reports', icon: <FileBarChart2 size={17} /> },
-    ]},
-    { section: 'Configure', items: [
-      { to: '/organisation', label: 'Organisation and roles', icon: <Network size={17} /> },
-      { to: '/guide', label: 'Guide', icon: <BookOpen size={17} /> },
-    ]},
+  const primary: NavItem[] = [
+    { to: '/', label: 'Situation', icon: <LayoutDashboard size={15} /> },
+    { to: '/workspace', label: 'My desk', icon: <Inbox size={15} />, count: taskCount },
+    { to: '/approvals', label: 'Decisions', icon: <Stamp size={15} />, count: approvals },
+    { to: '/incidents', label: 'Incidents', icon: <Siren size={15} /> },
+    { to: '/actions', label: 'Actions', icon: <ListChecks size={15} /> },
+    { to: '/risks', label: 'Risk', icon: <ShieldAlert size={15} /> },
+    { to: '/scenarios', label: 'Scenarios', icon: <PlayCircle size={15} /> },
+    { to: '/audit', label: 'Ledger', icon: <ScrollText size={15} /> },
   ];
+  const secondary: NavItem[] = [
+    { to: '/departments', label: 'Departments', icon: <Building2 size={15} /> },
+    { to: '/assets', label: 'Assets and devices', icon: <Server size={15} /> },
+    { to: '/reports', label: 'Reports', icon: <FileBarChart2 size={15} /> },
+    { to: '/organisation', label: 'Organisation and roles', icon: <Network size={15} /> },
+    { to: '/guide', label: 'Guide', icon: <BookOpen size={15} /> },
+  ];
+  const d = ov.data;
 
   return (
     <div className="app">
-      <aside className={`sidebar ${open ? 'open' : ''}`} aria-label="Main navigation">
+      <header className="topbar">
+        <button className="iconbtn mobile-only" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={19} /></button>
         <div className="brand">
-          <div className="brand-mark">NT</div>
-          <div><div className="brand-name">NOVATECH</div><div className="brand-sub">Risk governance</div></div>
-          <button className="iconbtn mobile-only" style={{ marginLeft: 'auto', color: '#fff' }} onClick={() => setOpen(false)} aria-label="Close menu"><X size={18} /></button>
+          <div className="brand-mark">N</div>
+          <div className="desktop-only"><div className="brand-name">NOVATECH</div><div className="brand-sub">{current?.kind === 'template' ? 'Banque Atlantique · fictional' : 'Governance command'}</div></div>
         </div>
-        {memberships.length > 1 && (
-          <div className="org-switch">
-            <select value={orgId} onChange={e => setOrg(e.target.value)} aria-label="Organisation">
-              {memberships.map(m => <option key={m.org_id} value={m.org_id}>{m.org_name}</option>)}
-            </select>
+        <nav className="topnav" aria-label="Main">
+          {primary.map(i => (
+            <NavLink key={i.to} to={i.to} end={i.to === '/'}>{i.icon}<span className="lbl">{i.label}</span>{!!i.count && <span className="count">{i.count}</span>}</NavLink>
+          ))}
+          <div style={{ position: 'relative' }}>
+            <a href="#" onClick={e => { e.preventDefault(); setMore(m => !m); }} className={secondary.some(s => loc.pathname.startsWith(s.to)) ? 'active' : ''}><span className="lbl">More</span><ChevronDown size={14} /></a>
+            {more && <div className="card" style={{ position: 'absolute', top: 44, left: 0, width: 240, padding: 6, background: '#0b111d', boxShadow: 'var(--float)', zIndex: 60 }}>
+              {secondary.map(i => <NavLink key={i.to} to={i.to} style={{ display: 'flex', gap: 10, padding: '9px 10px', borderRadius: 8 }}>{i.icon}{i.label}</NavLink>)}
+            </div>}
+          </div>
+        </nav>
+        <div className="spacer" />
+        {d && (
+          <div className="ticker" aria-label="Live posture">
+            <span>EXPOSURE <b>{d.register.case_total ?? d.matrix.reduce((s: number, r: any) => s + r.score, 0)}</b></span>
+            {d.register.case_top5 != null && <span>TOP-5 <b>{d.register.case_top5}</b></span>}
+            <span>AT STAKE <b className={d.incidents.exposure > 0 ? 'hot' : ''}>{d.incidents.exposure > 0 ? new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(d.incidents.exposure) : '€0'}</b></span>
+            <span>CHAIN <b className={chain.data ? (chain.data.ok ? 'ok' : 'bad') : ''}>{chain.data ? (chain.data.ok ? 'INTACT' : 'BROKEN') : '…'}</b></span>
           </div>
         )}
-        <nav className="nav">
-          {nav.map(sec => (
-            <div key={sec.section}>
-              <div className="nav-section">{sec.section}</div>
-              {sec.items.map(i => (
-                <NavLink key={i.to} to={i.to} end={i.to === '/'}>
-                  {i.icon}<span>{i.label}</span>
-                  {!!i.count && <span className={`count ${i.hot ? 'hot' : ''}`}>{i.count}</span>}
-                </NavLink>
-              ))}
-            </div>
-          ))}
-        </nav>
-        <div className="sidebar-foot">
-          {current?.kind === 'template'
-            ? 'Fictional banking template: same engine, different organisation and policy.'
-            : 'ESAIP Risk Management, Group 1. Executions are simulated unless a device reports them.'}
-        </div>
-      </aside>
-      {open && <div className="overlay mobile-only" style={{ zIndex: 90 }} onClick={() => setOpen(false)} />}
-
-      <div className="main">
-        <header className="topbar">
-          <button className="iconbtn mobile-only" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={19} /></button>
-          <div className="acting desktop-only">
-            <span>Acting as <b>{current?.role}</b></span>
-            {current?.kind === 'template' && <Badge tone="warning">Fictional bank</Badge>}
-            {current?.delegated_roles?.map((d, i) => <Badge key={i} tone="info">Also acting for {d.from}</Badge>)}
-          </div>
-          <div className="spacer desktop-only" />
-          <button className="cmd-trigger" onClick={() => setCmd(true)} aria-label="Search and commands"><Search size={15} /><span>Find or do anything</span><kbd className="desktop-only">Ctrl K</kbd></button>
-          <button className="iconbtn" onClick={() => setNotifOpen(true)} aria-label="Notifications"><NotifBell /></button>
-          <div style={{ position: 'relative' }}>
-            <button className="user-chip" onClick={() => setMenu(m => !m)} aria-haspopup="menu">
-              <Avatar name={current?.full_name} size="sm" />
-              <span className="who desktop-only"><b>{current?.full_name}</b><span>{current?.department}</span></span>
-              <ChevronDown size={14} className="desktop-only" />
-            </button>
-            {menu && (
-              <div className="card" style={{ position: 'absolute', right: 0, top: 44, width: 290, zIndex: 60, boxShadow: 'var(--float)' }} role="menu">
-                <div style={{ padding: 16 }} className="stack tight">
-                  <div className="row"><Avatar name={current?.full_name} size="lg" /><div><div className="strong">{current?.full_name}</div><div className="small muted">{current?.role}</div></div></div>
-                  {current?.is_student && <div className="xs muted">Demonstration role assigned to a Group 1 member.</div>}
-                </div>
-                <div className="divider" style={{ margin: 0 }} />
-                <button className="btn ghost block" style={{ justifyContent: 'flex-start', borderRadius: 0, height: 42 }} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}{theme === 'dark' ? 'Light mode' : 'Control-room dark mode'}</button>
-                <button className="btn ghost block" style={{ justifyContent: 'flex-start', borderRadius: 0, height: 42 }} onClick={signOut}><LogOut size={16} />Sign out</button>
+        {memberships.length > 1 && (
+          <select className="org-pill desktop-only" value={orgId} onChange={e => setOrg(e.target.value)} aria-label="Organisation">
+            {memberships.map(m => <option key={m.org_id} value={m.org_id}>{m.org_id === 'NT' ? 'NOVATECH' : 'Bank (fictional)'}</option>)}
+          </select>
+        )}
+        <button className="cmd-trigger" onClick={() => setCmd(true)} aria-label="Search and commands"><Search size={15} /><kbd className="desktop-only">Ctrl K</kbd></button>
+        <button className="iconbtn" onClick={() => setNotifOpen(true)} aria-label="Notifications"><NotifBell /></button>
+        <div style={{ position: 'relative' }}>
+          <button className="user-chip" onClick={() => setMenu(m => !m)} aria-haspopup="menu">
+            <Avatar name={current?.full_name} size="sm" />
+            <span className="who desktop-only"><b>{current?.full_name}</b><span>{current?.role}</span></span>
+          </button>
+          {menu && (
+            <div className="card" style={{ position: 'absolute', right: 0, top: 46, width: 300, zIndex: 60, background: '#0b111d', boxShadow: 'var(--float)' }} role="menu">
+              <div style={{ padding: 18 }} className="stack tight">
+                <div className="row"><Avatar name={current?.full_name} size="lg" /><div><div className="serif" style={{ fontSize: 22 }}>{current?.full_name}</div><div className="small muted">{current?.role}</div></div></div>
+                <div className="xs muted">{current?.department}{current?.is_student ? ' · demonstration role (Group 1)' : ''}</div>
+                {current?.delegated_roles?.map((x, i) => <Badge key={i} tone="info">Acting for {x.from}</Badge>)}
               </div>
-            )}
-          </div>
-        </header>
-        <main className="content">{children}</main>
-      </div>
+              <div className="divider" style={{ margin: 0 }} />
+              <button className="btn ghost block" style={{ justifyContent: 'flex-start', borderRadius: 0, height: 44 }} onClick={signOut}><LogOut size={16} />Sign out</button>
+            </div>
+          )}
+        </div>
+      </header>
+      <main className={`content ${isHome ? 'bleed' : ''}`}>{children}</main>
 
+      {open && (
+        <div className="mobile-drawer">
+          <div className="row between" style={{ marginBottom: 12 }}><div className="brand"><div className="brand-mark">N</div><div><div className="brand-name">NOVATECH</div></div></div><button className="iconbtn" onClick={() => setOpen(false)} aria-label="Close"><X size={20} /></button></div>
+          {memberships.length > 1 && <select className="select" value={orgId} onChange={e => setOrg(e.target.value)}>{memberships.map(m => <option key={m.org_id} value={m.org_id}>{m.org_name}</option>)}</select>}
+          {[...primary, ...secondary].map(i => <NavLink key={i.to} to={i.to} end={i.to === '/'}>{i.label}{!!i.count && <span className="count" style={{ marginLeft: 8 }}>{i.count}</span>}</NavLink>)}
+        </div>
+      )}
       <nav className="bottom-nav" aria-label="Quick navigation">
-        <NavLink to="/" end><LayoutDashboard size={19} />Briefing</NavLink>
-        <NavLink to="/workspace"><Inbox size={19} />My tasks{taskCount > 0 && <span className="count">{taskCount}</span>}</NavLink>
-        <NavLink to="/approvals"><Stamp size={19} />Approvals</NavLink>
+        <NavLink to="/" end><LayoutDashboard size={19} />Situation</NavLink>
+        <NavLink to="/workspace"><Inbox size={19} />My desk{taskCount > 0 && <span className="count">{taskCount}</span>}</NavLink>
+        <NavLink to="/approvals"><Stamp size={19} />Decisions</NavLink>
         <NavLink to="/incidents"><Siren size={19} />Incidents</NavLink>
-        <NavLink to="/actions"><ListChecks size={19} />Actions</NavLink>
+        <NavLink to="/audit"><ScrollText size={19} />Ledger</NavLink>
       </nav>
       {notifOpen && <NotificationDrawer onClose={() => setNotifOpen(false)} />}
-      {cmd && <CommandPalette onClose={() => setCmd(false)} items={nav.flatMap(n => n.items)} />}
+      {cmd && <CommandPalette onClose={() => setCmd(false)} items={[...primary, ...secondary]} />}
     </div>
   );
 }

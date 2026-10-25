@@ -5,6 +5,7 @@ import { StampProvider } from './components/Authority';
 import { Shell } from './components/Shell';
 import Login from './pages/Login';
 import Overview from './pages/Overview';
+import Situation from './pages/Situation';
 import Workspace from './pages/Workspace';
 import Risks from './pages/Risks';
 import Actions from './pages/Actions';
@@ -31,7 +32,8 @@ function Gate() {
   return (
     <Shell>
       <Routes>
-        <Route path="/" element={<Overview />} />
+        <Route path="/" element={<Situation />} />
+        <Route path="/briefing" element={<Overview />} />
         <Route path="/workspace" element={<Workspace />} />
         <Route path="/risks" element={<Risks />} />
         <Route path="/departments" element={<Departments />} />

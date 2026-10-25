@@ -46,28 +46,18 @@ export default function ActionDetail() {
 
   return (
     <div className="stack loose">
-      <div className="page-head" style={{ marginBottom: 0 }}>
-        <div style={{ minWidth: 0 }}>
-          <div className="eyebrow row wrap">
-            <Link to="/actions">Action plans</Link><span>/</span><span className="mono">{a.ref}</span>
-            {a.archived && <Badge tone="muted">Archived scenario run, read-only</Badge>}
-          </div>
-          <h1>{a.title}</h1>
-          <div className="row wrap" style={{ marginTop: 10 }}>
-            <Status s={a.status} />
-            <Badge tone="neutral">{a.type?.name}</Badge>
-            <Severity s={a.severity} />
-            {a.priority === 'P1' && <Badge tone="danger">Priority 1</Badge>}
-            {a.emergency && <Badge tone="critical"><Siren size={12} /> Emergency procedure</Badge>}
-            {a.amount != null && <Badge tone="neutral">{fmtMoney(a.amount)}</Badge>}
-            <span className={`badge ${a.execution_mode === 'device' ? 'label-dev' : 'label-sim'}`}>{a.execution_mode === 'device' ? 'DEVICE EXECUTION' : 'SIMULATED EXECUTION'}</span>
-          </div>
+      <div className="row between wrap">
+        <div className="eyebrow row wrap" style={{ margin: 0 }}>
+          <Link to="/actions">Actions</Link><span>/</span><span className="mono">{a.ref}</span>
+          {a.archived && <Badge tone="muted">Archived scenario run, read-only</Badge>}
+          <Status s={a.status} />
+          <span className={`badge ${a.execution_mode === 'device' ? 'label-dev' : 'label-sim'}`}>{a.execution_mode === 'device' ? 'DEVICE EXECUTION' : 'SIMULATED EXECUTION'}</span>
         </div>
         <div className="row wrap no-print">
-          {ops.reassign?.allowed && <button className="btn" onClick={() => setDialog('reassign')}><UserCog size={15} />Reassign</button>}
-          {ops.schedule?.allowed && <button className="btn" onClick={() => setDialog('schedule')}><CalendarClock size={15} />Schedule</button>}
-          {ops.reopen?.allowed && <button className="btn" onClick={() => setDialog('reopen')}><RotateCcw size={15} />Reopen</button>}
-          {ops.cancel?.allowed && <button className="btn danger-ghost" onClick={() => setDialog('cancel')}><Ban size={15} />Cancel action</button>}
+          {ops.reassign?.allowed && <button className="btn sm" onClick={() => setDialog('reassign')}><UserCog size={14} />Reassign</button>}
+          {ops.schedule?.allowed && <button className="btn sm" onClick={() => setDialog('schedule')}><CalendarClock size={14} />Schedule</button>}
+          {ops.reopen?.allowed && <button className="btn sm" onClick={() => setDialog('reopen')}><RotateCcw size={14} />Reopen</button>}
+          {ops.cancel?.allowed && <button className="btn sm danger-ghost" onClick={() => setDialog('cancel')}><Ban size={14} />Cancel action</button>}
         </div>
       </div>
 
@@ -81,22 +71,29 @@ export default function ActionDetail() {
 
       <div className="grid g-main-wide" style={{ alignItems: 'start' }}>
         <div className="stack loose">
-          <Card title="Case file" sub="Why this action exists and what it touches">
-            <dl className="kv">
-              <dt>Linked risk</dt><dd>{a.risk ? <span className="row wrap"><Link to={`/risks?r=${a.risk.id}`}><b>{a.risk.code}</b> {a.risk.title}</Link><Score score={a.risk.score} /><Level score={a.risk.score} /></span> : '—'}</dd>
-              <dt>Incident</dt><dd>{a.incident ? <Link to={`/incidents/${a.incident.id}`}><span className="mono">{a.incident.ref}</span> {a.incident.title}</Link> : '—'}</dd>
-              <dt>Affected asset</dt><dd>{a.asset ? <span>{a.asset.name} <Badge tone={a.asset.criticality >= 4 ? 'critical' : a.asset.criticality >= 3 ? 'danger' : 'neutral'}>Criticality {a.asset.criticality}</Badge><div className="small muted">{a.asset.service}</div></span> : '—'}</dd>
-              <dt>Proposed action</dt><dd>{a.proposed_action || '—'}</dd>
+          <article className="letter">
+            <div className="wax">{a.emergency ? <>Emergency<br />authority</> : a.status === 'completed' ? <>Sealed &amp;<br />verified</> : a.approvals.filter((x: any) => x.kind === 'pre').length > 1 ? <>Dual<br />control</> : <>{a.type.domain === 'finance' || a.type.domain === 'banking' ? 'Financial' : 'Security'}<br />decision</>}</div>
+            <div className="lk">{a.ref} · {a.type.name.toUpperCase()}</div>
+            <h2>{a.title}</h2>
+            {a.proposed_action && <p style={{ maxWidth: '62ch' }}>{a.proposed_action}</p>}
+            {a.amount != null && <div className="amt">{fmtMoney(a.amount)}</div>}
+            <div className="row wrap" style={{ margin: '12px 0 18px' }}>
+              <Severity s={a.severity} />{a.priority === 'P1' && <Badge tone="danger">Priority 1</Badge>}{a.emergency && <Badge tone="critical"><Siren size={12} /> Emergency procedure</Badge>}
+              <span className="xs" style={{ color: 'var(--letter-muted)' }}>Deadline {fmtDate(a.deadline)} ({due(a.deadline)})</span>
+            </div>
+            <div className="divider" />
+            <dl className="kv" style={{ marginTop: 14 }}>
+              <dt>Linked risk</dt><dd>{a.risk ? <span className="row wrap"><Link to={`/risks?r=${a.risk.id}`}>{a.risk.code} {a.risk.title}</Link><Score score={a.risk.score} /><Level score={a.risk.score} /></span> : '—'}</dd>
+              <dt>Incident</dt><dd>{a.incident ? <Link to={`/incidents/${a.incident.id}`}>{a.incident.ref} {a.incident.title}</Link> : '—'}</dd>
+              <dt>Affected asset</dt><dd>{a.asset ? <>{a.asset.name} <Badge tone={a.asset.criticality >= 4 ? 'critical' : 'neutral'}>Criticality {a.asset.criticality}</Badge><div className="small" style={{ color: 'var(--letter-muted)' }}>{a.asset.service}</div></> : '—'}</dd>
               <dt>Justification</dt><dd>{a.justification || '—'}</dd>
               <dt>Business impact</dt><dd>{a.business_impact || '—'}</dd>
-              <dt>Treatment</dt><dd>{a.treatment_strategy}</dd>
-              <dt>Deadline</dt><dd>{fmtDate(a.deadline)} <span className="small" style={{ color: a.overdue ? 'var(--danger)' : 'var(--ink-3)' }}>({due(a.deadline)})</span></dd>
-              {a.budget != null && <><dt>Budget</dt><dd>{fmtMoney(a.budget)}</dd></>}
+              <dt>Treatment</dt><dd>{a.treatment_strategy}{a.budget != null && ` · budget ${fmtMoney(a.budget)}`}</dd>
               {a.info_request && <><dt>Open question</dt><dd><b>{a.info_request}</b></dd></>}
               {a.blocked_reason && <><dt>Note</dt><dd>{a.blocked_reason}</dd></>}
-              {(a.residual_likelihood && a.residual_impact) ? <><dt>Residual risk</dt><dd>L{a.residual_likelihood} × I{a.residual_impact} = <Score score={a.residual_likelihood * a.residual_impact} /></dd></> : null}
+              {(a.residual_likelihood && a.residual_impact) ? <><dt>Residual risk</dt><dd>L{a.residual_likelihood} × I{a.residual_impact} = {a.residual_likelihood * a.residual_impact}</dd></> : null}
             </dl>
-          </Card>
+          </article>
 
           <Card title="Proof of completion" sub="Every criterion is checked by the server against recorded data. A button click alone cannot complete this action.">
             <div className="stack tight">
@@ -145,7 +142,7 @@ export default function ActionDetail() {
         </div>
 
         <div className="stack loose rail-col">
-          <Card title="Chain of authority" sub={next.stage === 'done' ? next.title : `Now: ${next.title}${next.actor ? ` · ${next.actor}` : ''}`}>
+          <Card title={<span className="serif" style={{ fontSize: 24 }}>Chain of authority</span>} sub={next.stage === 'done' ? next.title : `Now: ${next.title}${next.actor ? ` · ${next.actor}` : ''}`}>
             <AuthorityRail links={links} action={hasMine ? <div className="rail-now mine"><div className="xs muted" style={{ marginBottom: 6 }}>This step is yours, {current?.full_name.split(' ')[0]}.</div>{myButtons}</div>
               : !['completed', 'cancelled', 'rejected'].includes(a.status) ? <div className="rail-now"><div className="small row top"><Lock size={14} style={{ marginTop: 3 }} /><span>Waiting for {next.actor ?? 'the responsible person'}. You cannot act on this step.</span></div></div> : null} />
           </Card>
@@ -226,7 +223,7 @@ function ActionButtons({ ops, a, setDialog }: { ops: Record<string, Op>; a: any;
   if (ops.submit?.allowed) b.push(<button key="s" className="btn primary" onClick={() => setDialog('submit')}><ArrowRight size={15} />Submit for review</button>);
   if (ops.respond_info?.allowed) b.push(<button key="ri" className="btn primary" onClick={() => setDialog('respond_info')}><HelpCircle size={15} />Answer the approver</button>);
   if (ops.assess?.allowed) b.push(<button key="as" className="btn primary" onClick={() => setDialog('assess')}><ShieldCheck size={15} />Record assessment</button>);
-  if (ops.approve?.allowed) b.push(<button key="ap" className="btn primary" onClick={() => setDialog('approve')}><CheckCircle2 size={15} />{a.status === 'completed' || a.status === 'in_progress' || a.status === 'approved' || a.status === 'awaiting_verification' ? 'Review emergency decision' : 'Approve or reject'}</button>);
+  if (ops.approve?.allowed) b.push(<button key="ap" className="btn primary lg" onClick={() => setDialog('approve')}><CheckCircle2 size={15} />{a.status === 'completed' || a.status === 'in_progress' || a.status === 'approved' || a.status === 'awaiting_verification' ? 'Review emergency decision' : 'Sign or decline'}</button>);
   if (ops.emergency?.allowed) b.push(<button key="em" className="btn warn" onClick={() => setDialog('emergency')}><Siren size={15} />Use emergency procedure</button>);
   if (ops.start?.allowed) b.push(<button key="st" className="btn primary" onClick={() => setDialog('start')}><Play size={15} />Start execution</button>);
   if (ops.record_execution?.allowed) b.push(<button key="re" className="btn primary" onClick={() => setDialog('record')}><FileText size={15} />Record result</button>);
