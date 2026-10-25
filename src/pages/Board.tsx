@@ -72,9 +72,9 @@ export default function Board() {
 
   return (
     <>
-      <div className="bp-tools no-print">
-        <PageHead title="Board pack" desc="An executive risk report assembled from live data at the moment you open it. Print it or save it as PDF for the board." />
-        <div className="row"><CaseTag>Fictional case data</CaseTag><button className="btn primary" onClick={() => window.print()}><Printer size={15} />Print / Save as PDF</button></div>
+      <div className="no-print">
+        <PageHead title="Board pack" desc="An executive risk report assembled from live data at the moment you open it. Print it or save it as PDF for the board."
+          actions={<><CaseTag>Fictional case data</CaseTag><button className="btn primary" onClick={() => window.print()}><Printer size={15} />Print / Save as PDF</button></>} />
       </div>
 
       <div className="bp">

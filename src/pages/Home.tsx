@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Clock, FileText, Presentation, ShieldCheck, Siren, TriangleAlert, Compass, Radar, Truck, LifeBuoy, ScrollText } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Clock, FileText, ShieldCheck, Siren, TriangleAlert, Radar, Truck, LifeBuoy, ScrollText } from 'lucide-react';
 import { useRpc, useSession } from '../lib/session';
 import { ago, fmtMoney, fmtMoneyShort } from '../lib/format';
 import { Badge, ErrorBox, Loading, Meter, CaseTag } from '../components/ui';
@@ -55,48 +55,40 @@ export default function Home() {
   const catsOut = (d.appetite ?? []).filter((a: any) => a.risks.some((r: any) => r.breach));
   const fw = d.frameworks ?? [];
   const avgCov = fw.length ? fw.reduce((s: number, f: any) => s + covOf(f), 0) / fw.length : 0;
-  const kriBad = (d.kri ?? []).filter((k: any) => k.level !== 'normal');
   const P = sim?.portfolio;
   const first = current?.full_name.split(' ')[0];
 
   return (
     <div className="home">
       <section className="h-hero">
-        <div className="h-date">{new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())} · {current?.role}</div>
-        <h1>{hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'}, {first}.<br />
-          <span>{breaches.length === 0 ? 'Every risk sits within appetite.' : <>{catsOut.length} of {(d.appetite ?? []).length} risk categories are outside the appetite the board approved.</>}</span>
-        </h1>
-        <p className="h-sub">
-          {queue.length ? `${queue.length} ${queue.length === 1 ? 'item needs' : 'items need'} you` : 'Nothing needs you right now'}
-          {' · '}{kriBad.length} early-warning {kriBad.length === 1 ? 'indicator' : 'indicators'} off normal{' · '}{d.incidents?.open ? `${d.incidents.open} open incidents` : 'no open incident'}
-        </p>
-        <div className="row wrap" style={{ gap: 10, marginTop: 26 }}>
-          <a href="#needs" className="btn primary lg">Review what needs me <ArrowRight size={16} /></a>
-          <Link to="/board" className="btn lg"><Presentation size={16} />Board pack</Link>
-          {!tour.active && <button className="btn lg ghost" onClick={tour.start}><Compass size={16} />Guided tour</button>}
+        <div className="h-date">Risk posture · {new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())}</div>
+        <h1>{breaches.length === 0 ? <>Every risk is within<br />the board's appetite.</> : <>{catsOut.length === 1 ? 'One area needs' : `${['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][catsOut.length] ?? catsOut.length} areas need`}<br />the board's attention.</>}</h1>
+        <p className="h-sub">{hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'}, {first}. {breaches.length ? (() => { const l = catsOut.map((c: any) => c.category.toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' and $1'); return `${l.charAt(0).toUpperCase()}${l.slice(1)} ${catsOut.length === 1 ? 'is' : 'are'} outside appetite. Everything else is within it.`; })() : 'Nothing is outside tolerance.'}</p>
+        <div className="h-cta">
+          <a href="#needs" className="btn primary lg">Review decisions</a>
+          <Link to="/board" className="h-link">Open board pack ›</Link>
+          {!tour.active && <button className="h-link" onClick={tour.start}>Take the tour ›</button>}
         </div>
       </section>
 
-      <section className="h-band">
-        <Link to="/quant" className="hb">
-          <div className="hb-k">Expected annual loss</div>
-          <div className="hb-v">{P ? fmtMoneyShort(P.residual.mean) : '…'}</div>
-          <div className="hb-d">{P ? <>after controls · {fmtMoneyShort(P.inherent.mean)} without · 1-in-10-year {fmtMoneyShort(P.residual.p90)}</> : 'Running 10,000 simulations'}</div>
+      <section className="h-tiles">
+        <Link to="/quant" className="ht dark">
+          <div className="ht-k">Expected annual loss</div>
+          <div className="ht-v">{P ? fmtMoneyShort(P.residual.mean) : '…'}</div>
+          <div className="ht-d">{P ? <>After controls. {fmtMoneyShort(P.inherent.mean)} without them.<br />One year in ten: above {fmtMoneyShort(P.residual.p90)}.</> : 'Running 10,000 simulations…'}</div>
+          {sim && <Curve sim={sim} />}
         </Link>
-        <Link to="/compliance" className="hb">
-          <div className="hb-k">Compliance coverage</div>
-          <div className="hb-v">{Math.round(avgCov * 100)}<small>%</small></div>
-          <div className="hb-d">ISO 27001 · NIS2 · GDPR · DORA, from one control set</div>
+        <Link to="/compliance" className="ht">
+          <div className="ht-k">Compliance coverage</div>
+          <div className="ht-v">{Math.round(avgCov * 100)}%</div>
+          <div className="ht-d">ISO 27001, NIS2, GDPR and DORA from one set of {d.controls?.total ?? 25} controls.</div>
+          <div className="ht-ring" style={{ background: `conic-gradient(var(--pass) 0 ${avgCov * 100}%, var(--hover) ${avgCov * 100}% 100%)` }} />
         </Link>
-        <Link to="/risks" className="hb">
-          <div className="hb-k">Outside appetite</div>
-          <div className="hb-v" style={{ color: breaches.length ? 'var(--crit-2)' : undefined }}>{breaches.length}<small>/{(d.risks ?? []).length}</small></div>
-          <div className="hb-d">{breaches.length ? breaches.map((b: any) => b.code).join(' · ') : 'All risks within tolerance'}</div>
-        </Link>
-        <Link to="/audit?verify=1" className="hb">
-          <div className="hb-k">Audit ledger</div>
-          <div className="hb-v">{d.chain?.entries ?? 0}</div>
-          <div className="hb-d">{d.chain?.last_at ? `hash-chained entries · last ${ago(d.chain.last_at)}` : 'hash-chained entries'}</div>
+        <Link to="/risks" className="ht">
+          <div className="ht-k">Outside appetite</div>
+          <div className="ht-v" style={{ color: breaches.length ? 'var(--crit)' : 'var(--pass)' }}>{breaches.length} of {(d.risks ?? []).length}</div>
+          <div className="ht-d">{breaches.length ? breaches.map((b: any) => b.title.split(' / ')[0].split(' (')[0]).join(', ') + '.' : 'All risks within tolerance.'}</div>
+          <div className="ht-chips">{breaches.map((b: any) => <span key={b.id}>{b.code}</span>)}</div>
         </Link>
       </section>
 
@@ -191,6 +183,19 @@ export default function Home() {
         <p className="xs muted" style={{ marginTop: 18 }}>Register scores, appetite statements, control ratings, loss ranges and supplier data are NOVATECH case-study inputs. Monitoring results, decisions, acknowledgements and the ledger are live records.</p>
       </section>
     </div>
+  );
+}
+
+function Curve({ sim }: { sim: SimResult }) {
+  const d = sim.portfolio.residual.sorted; const n = d.length; const max = d[Math.floor(n * 0.995)] || 1;
+  const pts: string[] = [];
+  for (let i = 0; i <= 60; i++) { const x = (i / 60) * max; let k = 0; while (k < n && d[k] <= x) k++; pts.push(`${(i / 60) * 400},${10 + (k / n) * 105}`); }
+  const line = 'M' + pts.join(' L');
+  return (
+    <svg className="ht-curve" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden>
+      <defs><linearGradient id="hc" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#2997ff" stopOpacity=".55" /><stop offset="1" stopColor="#2997ff" stopOpacity="0" /></linearGradient></defs>
+      <path d={`${line} L400,120 L0,120Z`} fill="url(#hc)" /><path d={line} fill="none" stroke="#66b5ff" strokeWidth="3" />
+    </svg>
   );
 }
 

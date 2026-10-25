@@ -26,8 +26,8 @@ export function Logo({ size = 28 }: { size?: number }) {
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState<string>(() => document.documentElement.dataset.theme || 'dark');
-  useEffect(() => { document.documentElement.dataset.theme = theme; try { localStorage.setItem('grc-theme2', theme); } catch { /* ignore */ } }, [theme]);
+  const [theme, setTheme] = useState<string>(() => document.documentElement.dataset.theme || 'light');
+  useEffect(() => { document.documentElement.dataset.theme = theme; try { localStorage.setItem('grc-theme3', theme); } catch { /* ignore */ } }, [theme]);
   return [theme, () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))] as const;
 }
 
@@ -190,7 +190,7 @@ function ShellInner({ children }: { children: ReactNode }) {
         )}
         {section && section.items.length > 1 && !isBleed && (
           <div className="subnav">
-            <div className="subnav-in">
+            <div className="subnav-in" data-title={section.label}>
               {section.items.map(i => (
                 <NavLink key={i.to} to={i.to} end={i.to === '/'} className="sn">{i.label}{!!i.count && <span className="count">{i.count}</span>}</NavLink>
               ))}

@@ -72,3 +72,10 @@
 .lp-team { grid-template-columns: repeat(3, 1fr) !important; }
 @media (max-width: 1100px) { .lp-team { grid-template-columns: repeat(2, 1fr) !important; } }
 @media (max-width: 700px) { .lp-team { grid-template-columns: 1fr !important; } .lp-creator { flex-wrap: wrap; } }
+.lp-links a { color: var(--text-2) !important; }
+.lp-links a:hover { color: var(--text) !important; }
+.lp { background: var(--bg-2); }
+.lp-mod, .lp-tr, .lp-person, .lp-stage, .lp-stages, .lp-mods { border-color: var(--border); }
+.lp-shot { border-radius: 20px; }
+:root[data-theme='light'] .lp-shot { box-shadow: 0 40px 100px -30px rgba(0, 60, 140, .28), 0 20px 50px rgba(0,0,0,.08); }
+:root[data-theme='light'] .lp-grid-bg { opacity: .35; }
