@@ -101,7 +101,7 @@ export default function Present() {
         <section className="pr-stage">
           {!run ? (
             <>
-              <div className="pr-eyebrow">READY · {steps.length} STEPS · {new Set(steps.flatMap(x => x.people)).size} PEOPLE</div>
+              <div className="pr-eyebrow">READY · {steps.length} STEPS · SECURITY AND FINANCE</div>
               <h1 className="pr-h">Ready when <em>you</em> are.</h1>
               <p className="pr-p">{s.summary}</p>
               <p className="pr-note">The alert comes from a simulated detection feed. Everything after it is real: each person signs in on their own device, and the database decides what they may do.</p>
