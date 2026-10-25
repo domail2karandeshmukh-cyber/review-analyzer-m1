@@ -22,7 +22,7 @@ export default function Workspace() {
 
   return (
     <div className="stack loose">
-      <PageHead eyebrow="My Workspace" title={current?.role ?? ''} desc={<span className="row wrap"><Person p={{ name: current?.full_name ?? '', role: current?.department }} />{current?.is_student && <Badge tone="accent">Demonstration role</Badge>}</span>}
+      <PageHead title={current?.role ?? ''} desc={<span className="row wrap"><Person p={{ name: current?.full_name ?? '', role: current?.department }} />{current?.is_student && <Badge tone="accent">Demonstration role</Badge>}</span>}
         actions={can('authority.delegate') && <button className="btn" onClick={() => setDeleg(true)}><UserPlus size={15} />Delegate my authority</button>} />
 
       {data?.delegations_in?.map((d: any) => <Notice key={d.id} kind="info">You are acting for <b>{d.from}</b> as <b>{d.role}</b> until {fmtDateTime(d.until)} — “{d.reason}”. Your decisions are recorded as “on behalf of”.</Notice>)}

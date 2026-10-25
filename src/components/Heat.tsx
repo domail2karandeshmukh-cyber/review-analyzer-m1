@@ -21,9 +21,9 @@ export function HeatMap({ items }: { items: { id: string; code: string; l: numbe
         <div />
         {[1, 2, 3, 4].map(i => <div key={i} className="ax">{i}</div>)}
       </div>
-      <div className="row between xs muted" style={{ marginTop: 6 }}>
-        <span>↑ Likelihood (1–4) · Impact (1–4) →</span>
-        <span className="row" style={{ gap: 10 }}>
+      <div className="xs muted" style={{ marginTop: 6 }}>Rows: likelihood 1–4. Columns: impact 1–4.</div>
+      <div className="row wrap xs muted" style={{ marginTop: 4 }}>
+        <span className="row wrap" style={{ gap: 10 }}>
           <Leg c="var(--heat-low)" l="1–3 Low" /><Leg c="var(--heat-mod)" l="4–7 Moderate" /><Leg c="var(--heat-high)" l="8–11 High" /><Leg c="var(--heat-crit)" l="12–16 Critical" />
         </span>
       </div>

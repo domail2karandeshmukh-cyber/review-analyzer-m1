@@ -95,10 +95,10 @@ export const STAGES = [
 ] as const;
 
 export const stageIndex: Record<string, number> = {
-  draft: 1, submitted: 1, reopened: 1, under_review: 1,
-  awaiting_approval: 2, escalated: 2, rejected: 2,
-  approved: 3, scheduled: 3, in_progress: 3, failed: 3, blocked: 3,
-  awaiting_verification: 4, completed: 5, cancelled: 1,
+  draft: 2, submitted: 2, reopened: 2, under_review: 2, cancelled: 2,
+  awaiting_approval: 3, escalated: 3, rejected: 3,
+  approved: 4, scheduled: 4, in_progress: 4, failed: 4, blocked: 4,
+  awaiting_verification: 5, completed: 6,
 };
 
 export const STAGE_LABEL: Record<string, string> = {

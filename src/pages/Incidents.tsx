@@ -15,7 +15,7 @@ export function Incidents() {
   const nav = useNavigate();
   return (
     <>
-      <PageHead eyebrow="Detect" title="Incidents" desc="Security, financial and operational events under investigation. An incident can only be closed once every linked action is verified."
+      <PageHead title="Incidents" desc="Security, financial and operational events under investigation. An incident can only be closed once every linked action is verified."
         actions={can('incident.create') && <button className="btn primary" onClick={() => setNewOpen(true)}><Plus size={16} />Report incident</button>} />
       <Card flush>
         <div className="toolbar"><label className="row small muted" style={{ marginLeft: 'auto' }}><input type="checkbox" checked={archived} onChange={e => setArchived(e.target.checked)} /> Include archived scenario runs</label></div>

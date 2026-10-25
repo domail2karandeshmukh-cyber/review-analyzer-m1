@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Siren, Stamp } from 'lucide-react';
 import { useRpc, useSession } from '../lib/session';
 import { fmtDateTime, fmtMoney } from '../lib/format';
@@ -8,7 +8,8 @@ import { PolicyPreview } from '../components/Policy';
 
 export default function Approvals() {
   const { orgId, current } = useSession();
-  const [tab, setTab] = useState('mine');
+  const [sp] = useSearchParams();
+  const [tab, setTab] = useState(sp.get('tab') ?? 'mine');
   const work = useRpc<any>('grc_my_work', { p_org: orgId }, { poll: 8000 });
   const all = useRpc<any[]>('grc_actions', { p_org: orgId }, { poll: 10000 });
   const audit = useRpc<any>('grc_audit', { p_org: orgId, p_limit: 60, p_stage: 'authorise' });
@@ -18,7 +19,7 @@ export default function Approvals() {
 
   return (
     <>
-      <PageHead eyebrow="Authorise" title="Approval Center"
+      <PageHead title="Approval center"
         desc="Decisions are routed by configurable policy — by action type, severity, asset criticality, amount, emergency status and delegation. Nobody approves their own request." />
       <Tabs value={tab} onChange={setTab} tabs={[
         { key: 'mine', label: <>Awaiting my decision {mine.length > 0 && <Badge tone="warning">{mine.length}</Badge>}</> },

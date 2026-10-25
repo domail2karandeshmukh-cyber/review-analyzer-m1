@@ -17,7 +17,7 @@ export default function Organisation() {
   const done = () => { reload(); bump(); };
   return (
     <>
-      <PageHead eyebrow="Configure" title="Organisation & Roles"
+      <PageHead title="Organisation and roles"
         desc={<>{data.org.name} · {data.org.industry}. Departments, roles, permissions and approval policy are data — administrators change them here without touching code. Every change is audited.</>} />
       {!admin && <Notice>You can read the configuration. Changes require the <b>org.admin</b> permission (Risk Coordinator / CRO).</Notice>}
       <Tabs value={tab} onChange={setTab} tabs={[

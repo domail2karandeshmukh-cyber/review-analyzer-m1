@@ -14,7 +14,7 @@ export function Departments() {
   const depts = org.data.departments.filter((d: any) => !d.parent_id || risks.data!.some(r => r.department_id === d.id));
   return (
     <>
-      <PageHead eyebrow="Risk Portfolio" title="Departments" desc="Each department owns its risks through an accountable owner. Cross-department risks (e.g. finance-system access) name Finance as owner and the RSSI as consulted." />
+      <PageHead title="Departments" desc="Each department owns its risks through an accountable owner. Cross-department risks (e.g. finance-system access) name Finance as owner and the RSSI as consulted." />
       <div className="grid g2">
         {depts.map((d: any) => {
           const rs = risks.data!.filter(r => r.department_id === d.id);
@@ -45,7 +45,7 @@ export function Assets() {
   const devices = org.data.assets.filter((a: any) => a.device);
   return (
     <>
-      <PageHead eyebrow="Risk Portfolio" title="Assets & Devices" desc="Asset criticality (1–4) drives the approval policy: interrupting a criticality-4 client-facing service brings the CEO into the decision." />
+      <PageHead title="Assets and devices" desc="Asset criticality (1–4) drives the approval policy: interrupting a criticality-4 client-facing service brings the CEO into the decision." />
       <div className="stack loose">
         <Card flush title="Asset inventory">
           <div className="table-wrap"><table className="t responsive">
@@ -91,7 +91,7 @@ export function Reports() {
   const reduced = risks.data.filter(r => r.residual_score);
   return (
     <>
-      <PageHead eyebrow="Reports" title="Management risk report" desc={`${d.org.name} · generated ${fmtDateTime(new Date().toISOString())} by ${current?.full_name}. All figures are computed from live records.`}
+      <PageHead title="Management risk report" desc={`${d.org.name} · generated ${fmtDateTime(new Date().toISOString())} by ${current?.full_name}. All figures are computed from live records.`}
         actions={<button className="btn primary no-print" onClick={() => window.print()}><Printer size={15} />Print / save as PDF</button>} />
       <div className="stack loose">
         <div className="grid g4">
@@ -126,7 +126,7 @@ export function Guide() {
   const { current, memberships } = useSession();
   return (
     <>
-      <PageHead eyebrow="Guide & Settings" title="How to use the platform" desc="A short guide for presenters and for anyone exploring the platform independently." />
+      <PageHead title="Guide" desc="A short guide for presenters and for anyone exploring the platform independently." />
       <div className="grid g-main">
         <div className="stack loose">
           <Card title="The five stages">

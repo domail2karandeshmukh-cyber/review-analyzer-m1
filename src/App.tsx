@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { SessionProvider, useSession } from './lib/session';
 import { ToastProvider, Notice } from './components/ui';
+import { StampProvider } from './components/Authority';
 import { Shell } from './components/Shell';
 import Login from './pages/Login';
 import Overview from './pages/Overview';
@@ -56,7 +57,9 @@ export default function App() {
     <BrowserRouter>
       <SessionProvider>
         <ToastProvider>
-          <Gate />
+          <StampProvider>
+            <Gate />
+          </StampProvider>
         </ToastProvider>
       </SessionProvider>
     </BrowserRouter>

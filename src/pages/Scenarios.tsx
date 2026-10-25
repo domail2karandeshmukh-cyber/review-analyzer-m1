@@ -18,7 +18,7 @@ export default function Scenarios() {
 
   return (
     <>
-      <PageHead eyebrow="Scenario & Response Center" title="Coordinated response scenarios"
+      <PageHead title="Scenario center"
         desc="Each scenario creates a real incident in the database. Progress is computed from what people actually do — every step needs the right person to sign in and act within their authority." />
       <Notice>Detection events come from a <b>simulated feed</b>; the workflow, permissions, approvals, evidence and audit records are real. Resetting archives the run as read-only — the audit history is never deleted.</Notice>
       <div className="stack loose" style={{ marginTop: 16 }}>

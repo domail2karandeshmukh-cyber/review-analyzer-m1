@@ -30,7 +30,7 @@ export default function Actions() {
 
   return (
     <>
-      <PageHead eyebrow="Risk treatment" title="Action Plans"
+      <PageHead title="Action plans"
         desc="Every treatment, containment or business action with its owner, approval route, executor, deadline and verification. Status changes only through authorised steps."
         actions={can('action.propose') && <button className="btn primary" onClick={() => setNewOpen(true)}><Plus size={16} />New action</button>} />
       <Card flush>

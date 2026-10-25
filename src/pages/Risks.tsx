@@ -22,7 +22,7 @@ export default function Risks() {
 
   return (
     <>
-      <PageHead eyebrow="Risk Portfolio" title="Risk register & monitoring"
+      <PageHead title="Risk portfolio"
         desc={orgId === 'NT' ? <>R1–R6 are the Group 1 case register; their scores are read live from the original records (case total {total || '…'}, Top-5 {top5 || '…'}). R7–R8 extend the register for the Finance department.</> : 'Fictional bank register (template).'}
         actions={can('risk.manage') && <button className="btn primary" onClick={() => setNewOpen(true)}><Plus size={16} />Identify a risk</button>} />
       <Tabs value={tab} onChange={k => setSp(k === 'register' ? {} : { tab: k })} tabs={[{ key: 'register', label: 'Register' }, { key: 'matrix', label: 'Heat map' }, ...(orgId === 'NT' ? [{ key: 'monitoring', label: 'KRI monitoring & alerts' }] : [])]} />
