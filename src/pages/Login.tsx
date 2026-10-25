@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Logo } from '../components/Shell';
 import { supabase } from '../lib/supabase';
 import { Notice } from '../components/ui';
 import { initials } from '../lib/format';
@@ -43,17 +45,17 @@ export default function Login() {
     <div className="auth">
       <svg className="auth-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
         <defs>
-          <radialGradient id="ag" cx="30%" cy="40%" r="70%"><stop offset="0" stopColor="#14223f" stopOpacity=".9" /><stop offset="1" stopColor="#05080f" stopOpacity="0" /></radialGradient>
+          <radialGradient id="ag" cx="30%" cy="40%" r="70%"><stop offset="0" stopColor="#2a2870" stopOpacity=".9" /><stop offset="1" stopColor="#05080f" stopOpacity="0" /></radialGradient>
         </defs>
         <rect width="1440" height="900" fill="url(#ag)" />
         {NODES.map(([x, y], i) => NODES.slice(i + 1).filter(([x2, y2]) => Math.hypot(x2 - x, y2 - y) < 330).map(([x2, y2], j) => (
-          <line key={`${i}-${j}`} x1={x} y1={y} x2={x2} y2={y2} stroke="#4c86ff" strokeOpacity=".09" />
+          <line key={`${i}-${j}`} x1={x} y1={y} x2={x2} y2={y2} stroke="#7170ff" strokeOpacity=".09" />
         )))}
-        <path d={`M${NODES.slice(0, 5).map(n => n.join(' ')).join(' L')}`} fill="none" stroke="#d4bc86" strokeWidth="1.4" strokeDasharray="5 9" className="auth-path" />
-        {NODES.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i < 5 ? 4 : 2.2} fill={i < 5 ? '#e9d6a6' : '#4c86ff'} opacity={i < 5 ? .9 : .45} />)}
+        <path d={`M${NODES.slice(0, 5).map(n => n.join(' ')).join(' L')}`} fill="none" stroke="#a2a1ff" strokeWidth="1.4" strokeDasharray="5 9" className="auth-path" />
+        {NODES.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i < 5 ? 4 : 2.2} fill={i < 5 ? '#a2a1ff' : '#7170ff'} opacity={i < 5 ? .9 : .45} />)}
       </svg>
       <div className="auth-side">
-        <div className="row"><div className="brand-mark">NT</div><div><div className="brand-name">NOVATECH</div><div className="brand-sub">Enterprise risk governance</div></div></div>
+        <Link to="/" className="row" style={{ color: 'inherit', textDecoration: 'none' }}><Logo /><div><div className="brand-name">NOVATECH IRM</div><div className="brand-sub">Integrated risk management</div></div></Link>
         <h1>Every decision has an <em>owner</em>, an <em>authority</em> and a <em>proof</em>.</h1>
         <p>Detection to verification in one chain of custody. Each person signs only what their role allows; the database enforces it and seals every step.</p>
         <div className="auth-stages" aria-label="Lifecycle">
@@ -64,7 +66,7 @@ export default function Login() {
       <div className="auth-main">
         <form className="auth-card stack loose" onSubmit={submit}>
           <div>
-            <div className="eyebrow">Secure access</div><h2 className="serif" style={{ fontSize: 40, fontWeight: 400, lineHeight: 1 }}>Sign in</h2>
+            <h2 style={{ fontSize: 22, fontWeight: 650, letterSpacing: "-0.02em" }}>Sign in</h2>
             <p className="muted" style={{ marginTop: 6 }}>Personal accounts replace the shared demo passcode. What you may do is enforced by the database, not by hiding buttons.</p>
           </div>
           <div className="field"><label htmlFor="em">Work email</label><input id="em" className="input" type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></div>

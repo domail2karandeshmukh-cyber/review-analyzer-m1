@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { X, Lock, Inbox, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
+import { X, Lock, Inbox, AlertTriangle, CheckCircle2, Info, FlaskConical } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { initials, levelOf, statusOf, SEVERITY } from '../lib/format';
 import type { Tone } from '../lib/format';
 
@@ -145,3 +146,60 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 export const useToast = () => useContext(ToastCtx);
+
+
+/* ---------------- Shared building blocks (enterprise layer) ---------------- */
+/** Right-hand inspector panel: opens over the list without leaving the page. */
+export function Drawer({ title, sub, onClose, children, actions, wide }: { title: ReactNode; sub?: ReactNode; onClose: () => void; children: ReactNode; actions?: ReactNode; wide?: boolean }) {
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [onClose]);
+  return (
+    <>
+      <div className="overlay" style={{ background: 'transparent', backdropFilter: 'none' }} onClick={onClose} />
+      <aside className={`drawer ${wide ? 'wide' : ''}`} role="dialog" aria-modal="true">
+        <div className="drawer-head">
+          <div style={{ minWidth: 0 }}><div className="strong" style={{ fontSize: 15 }}>{title}</div>{sub && <div className="xs muted" style={{ marginTop: 2 }}>{sub}</div>}</div>
+          <div className="row">{actions}<button className="iconbtn" onClick={onClose} aria-label="Close"><X size={17} /></button></div>
+        </div>
+        <div className="drawer-body">{children}</div>
+      </aside>
+    </>
+  );
+}
+
+/** KPI tile for the .stats strip: label, value, detail, optional bar and link. */
+export function Stat({ k, v, d, to, bar, tone, icon }: { k: ReactNode; v: ReactNode; d?: ReactNode; to?: string; bar?: number; tone?: 'up' | 'down'; icon?: ReactNode }) {
+  const body = (
+    <>
+      <div className="k">{icon}{k}</div>
+      <div className="v">{v}</div>
+      {d && <div className={`d ${tone ?? ''}`}>{d}</div>}
+      {bar !== undefined && <div className="bar"><i style={{ width: `${Math.max(0, Math.min(100, bar))}%` }} /></div>}
+    </>
+  );
+  return to ? <Link to={to} className="stat">{body}</Link> : <div className="stat">{body}</div>;
+}
+
+/** Severity / state marker: colour + shape + text. level: critical | high | medium | low | pass | none */
+export function Sev({ level, children }: { level: string; children?: ReactNode }) {
+  return <span className={`sev ${level}`}><i />{children}</span>;
+}
+
+/** Segmented horizontal bar (e.g. met / partial / gap). */
+export function Meter({ parts, label }: { parts: { value: number; color: string; title?: string }[]; label?: ReactNode }) {
+  const total = parts.reduce((s, p) => s + p.value, 0) || 1;
+  return (
+    <div className="meter">
+      <div className="track">{parts.map((p, i) => <i key={i} title={p.title} style={{ width: `${(p.value / total) * 100}%`, background: p.color }} />)}</div>
+      {label !== undefined && <b>{label}</b>}
+    </div>
+  );
+}
+
+/** Marks seeded case-study inputs so nothing is mistaken for real-world evidence. */
+export function CaseTag({ children }: { children?: ReactNode }) {
+  return <span className="case-tag" title="Fictional NOVATECH case-study input, not real-world evidence"><FlaskConical size={11} />{children ?? 'Case-study data'}</span>;
+}

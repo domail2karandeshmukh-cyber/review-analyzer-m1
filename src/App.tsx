@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { SessionProvider, useSession } from './lib/session';
 import { ToastProvider, Notice } from './components/ui';
 import { StampProvider } from './components/Authority';
@@ -14,14 +14,25 @@ import Approvals from './pages/Approvals';
 import { Incidents, IncidentDetail } from './pages/Incidents';
 import Scenarios from './pages/Scenarios';
 import Present from './pages/Present';
+import Home from './pages/Home';
+import Landing from './pages/Landing';
+import Ebios from './pages/Ebios';
+import Quant from './pages/Quant';
+import Compliance from './pages/Compliance';
+import Controls from './pages/Controls';
+import Policies from './pages/Policies';
+import Vendors from './pages/Vendors';
+import Continuity from './pages/Continuity';
+import Board from './pages/Board';
 import Audit from './pages/Audit';
 import Organisation from './pages/Organisation';
 import { Departments, Assets, Reports, Guide } from './pages/Misc';
 
 function Gate() {
   const { session, loading, memberships, signOut } = useSession();
+  const loc = useLocation();
   if (loading) return <div style={{ display: 'grid', placeItems: 'center', height: '100vh' }}><div className="spinner" /></div>;
-  if (!session) return <Login />;
+  if (!session) return loc.pathname === '/login' ? <Login /> : <Landing />;
   if (memberships.length === 0) return (
     <div style={{ display: 'grid', placeItems: 'center', height: '100vh', padding: 16 }}>
       <div className="card" style={{ padding: 24, maxWidth: 440 }}>
@@ -35,7 +46,17 @@ function Gate() {
       <Route path="/present" element={<Present />} />
       <Route path="*" element={<Shell>
       <Routes>
-        <Route path="/" element={<Situation />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/live" element={<Situation />} />
+        <Route path="/login" element={<Navigate to="/" />} />
+        <Route path="/ebios" element={<Ebios />} />
+        <Route path="/quant" element={<Quant />} />
+        <Route path="/compliance" element={<Compliance />} />
+        <Route path="/controls" element={<Controls />} />
+        <Route path="/policies" element={<Policies />} />
+        <Route path="/vendors" element={<Vendors />} />
+        <Route path="/continuity" element={<Continuity />} />
+        <Route path="/board" element={<Board />} />
         <Route path="/briefing" element={<Overview />} />
         <Route path="/workspace" element={<Workspace />} />
         <Route path="/risks" element={<Risks />} />

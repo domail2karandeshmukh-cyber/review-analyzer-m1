@@ -127,3 +127,24 @@ export const PERMISSION_LABEL: Record<string, string> = {
 };
 
 export const initials = (n?: string | null) => (n ?? '?').split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+
+/** Compact money: €1.2M, €340k, €950 */
+export function fmtMoneyShort(n?: number | null, cur = '€') {
+  if (n === null || n === undefined || Number.isNaN(n)) return '—';
+  const a = Math.abs(n);
+  if (a >= 1e6) return `${cur}${(n / 1e6).toFixed(a >= 1e7 ? 0 : 1)}M`;
+  if (a >= 1e3) return `${cur}${Math.round(n / 1e3)}k`;
+  return `${cur}${Math.round(n)}`;
+}
+export const pct = (n?: number | null, digits = 0) => (n === null || n === undefined || Number.isNaN(n) ? '—' : `${(n * 100).toFixed(digits)}%`);
+/** Map a control effectiveness value to label + tone */
+export const EFF: Record<string, { label: string; tone: Tone }> = {
+  effective: { label: 'Effective', tone: 'success' }, partial: { label: 'Partially effective', tone: 'warning' },
+  ineffective: { label: 'Ineffective', tone: 'critical' }, not_assessed: { label: 'Not assessed', tone: 'muted' },
+};
+export const TEST: Record<string, { label: string; tone: Tone }> = {
+  pass: { label: 'Pass', tone: 'success' }, warn: { label: 'Warning', tone: 'warning' }, fail: { label: 'Fail', tone: 'critical' }, partial: { label: 'Partial', tone: 'warning' },
+};
+export const TIER: Record<string, { label: string; tone: Tone }> = {
+  critical: { label: 'Critical', tone: 'critical' }, high: { label: 'High', tone: 'danger' }, medium: { label: 'Medium', tone: 'warning' }, low: { label: 'Low', tone: 'info' },
+};

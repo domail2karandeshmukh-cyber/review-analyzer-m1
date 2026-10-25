@@ -171,7 +171,7 @@ export default function Situation() {
           <div className="graph-card card" style={{ background: 'rgba(11,17,29,.86)' }}>
             <div className="card-body stack tight">
               <div className="row between"><span className="mono xs muted">{a.ref}</span><Status s={a.status} /></div>
-              <div className="serif" style={{ fontSize: 22, lineHeight: 1.15 }}>{a.title}</div>
+              <div className="serif" style={{ fontSize: 16, lineHeight: 1.3 }}>{a.title}</div>
               <div className="xs muted">{a.type.name}{a.asset ? ` · ${a.asset.name}` : ''}</div>
               <div className="row" style={{ marginTop: 6 }}>
                 <button className={`btn ${isMe ? 'primary' : ''} sm`} onClick={() => nav(`/actions/${a.id}`)}>{isMe ? 'Open and sign' : 'Open decision dossier'}<ArrowUpRight size={14} /></button>

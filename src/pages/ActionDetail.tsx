@@ -72,7 +72,7 @@ export default function ActionDetail() {
       <div className="grid g-main-wide" style={{ alignItems: 'start' }}>
         <div className="stack loose">
           <article className="letter">
-            <div className="wax">{a.emergency ? <>Emergency<br />authority</> : a.status === 'completed' ? <>Sealed &amp;<br />verified</> : a.approvals.filter((x: any) => x.kind === 'pre').length > 1 ? <>Dual<br />control</> : <>{a.type.domain === 'finance' || a.type.domain === 'banking' ? 'Financial' : 'Security'}<br />decision</>}</div>
+            <div className="wax">{a.emergency ? <>Emergency{" "}authority</> : a.status === 'completed' ? <>Sealed &amp; verified</> : a.approvals.filter((x: any) => x.kind === 'pre').length > 1 ? <>Dual control</> : <>{a.type.domain === 'finance' || a.type.domain === 'banking' ? 'Financial' : 'Security'}{" "}decision</>}</div>
             <div className="lk">{a.ref} · {a.type.name.toUpperCase()}</div>
             <h2>{a.title}</h2>
             {a.proposed_action && <p style={{ maxWidth: '62ch' }}>{a.proposed_action}</p>}
@@ -142,7 +142,7 @@ export default function ActionDetail() {
         </div>
 
         <div className="stack loose rail-col">
-          <Card title={<span className="serif" style={{ fontSize: 24 }}>Chain of authority</span>} sub={next.stage === 'done' ? next.title : `Now: ${next.title}${next.actor ? ` · ${next.actor}` : ''}`}>
+          <Card title={'Chain of authority'} sub={next.stage === 'done' ? next.title : `Now: ${next.title}${next.actor ? ` · ${next.actor}` : ''}`}>
             <AuthorityRail links={links} action={hasMine ? <div className="rail-now mine"><div className="xs muted" style={{ marginBottom: 6 }}>This step is yours, {current?.full_name.split(' ')[0]}.</div>{myButtons}</div>
               : !['completed', 'cancelled', 'rejected'].includes(a.status) ? <div className="rail-now"><div className="small row top"><Lock size={14} style={{ marginTop: 3 }} /><span>Waiting for {next.actor ?? 'the responsible person'}. You cannot act on this step.</span></div></div> : null} />
           </Card>

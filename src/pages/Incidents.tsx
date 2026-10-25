@@ -6,6 +6,7 @@ import { useRpc, useSession } from '../lib/session';
 import { ago, fmtDateTime, fmtMoney } from '../lib/format';
 import { Badge, Card, Empty, ErrorBox, Field, Level, Loading, Locked, Modal, Notice, PageHead, Person, Score, Severity, Status, useToast } from '../components/ui';
 import { NewActionModal } from '../components/NewAction';
+import { RegClocks } from '../components/RegClocks';
 
 export function Incidents() {
   const { orgId, can } = useSession();
@@ -130,6 +131,7 @@ export function IncidentDetail() {
           </Card>
         </div>
         <div className="stack loose">
+          <RegClocks incidentId={i.id} archived={i.archived} />
           <Card title="People">
             <div className="stack">
               <div><div className="xs muted">Investigator</div><Person p={i.assigned_to} /></div>

@@ -62,10 +62,10 @@ export default function Overview() {
           <div className="fact"><div className="v">{d.register.critical}</div><div className="k">Critical risks</div></div>
           <div className="fact"><div className="v">{d.actions.awaiting_approval}</div><div className="k">Awaiting approval</div></div>
           <div className="fact"><div className="v">{d.actions.awaiting_verification}</div><div className="k">Awaiting verification</div></div>
-          <div className="fact"><div className="v" style={{ color: d.actions.overdue ? '#ffb4a3' : undefined }}>{d.actions.overdue}</div><div className="k">Overdue</div></div>
-          {d.actions.emergency_open_reviews > 0 && <div className="fact"><div className="v" style={{ color: '#ff9aa5' }}>{d.actions.emergency_open_reviews}</div><div className="k">Emergency reviews open</div></div>}
+          <div className="fact"><div className="v" style={{ color: d.actions.overdue ? 'var(--high)' : undefined }}>{d.actions.overdue}</div><div className="k">Overdue</div></div>
+          {d.actions.emergency_open_reviews > 0 && <div className="fact"><div className="v" style={{ color: 'var(--crit)' }}>{d.actions.emergency_open_reviews}</div><div className="k">Emergency reviews open</div></div>}
         </div>
-        {lens && <p style={{ marginTop: 18, color: '#9fb0cf', maxWidth: '78ch', fontSize: 13.5 }}>{lens}</p>}
+        {lens && <p style={{ marginTop: 18, color: 'var(--text-3)', maxWidth: '78ch', fontSize: 13.5 }}>{lens}</p>}
       </section>
 
       {d.org.kind === 'template' && <Notice kind="warn">Banque Atlantique is fictional. It shows the same engine running with a bank's roles, thresholds and policy. No real bank, customer or transaction is involved.</Notice>}

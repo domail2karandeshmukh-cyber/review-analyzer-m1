@@ -159,9 +159,15 @@ export function Guide() {
                 ['Can the IT Manager shut down a server without approval?', 'Action → Your permissions: “Execution blocked: approval still required…”'],
                 ['What if it is urgent?', 'Emergency procedure (RSSI / CEO) with mandatory post-emergency review.'],
                 ['How does Finance participate?', 'Scenario A; payment holds need Finance authority; treatment budgets ≥ €10k.'],
-                ['What if this were a bank?', 'Switch organisation (sidebar) → Banque Atlantique; Scenario C.'],
+                ['What if this were a bank?', 'Organisation switcher (bottom of the sidebar) → Banque Atlantique; Scenario C.'],
                 ['How do we know it worked?', 'Verification criteria evaluated against data; evidence; residual risk.'],
-                ['Can someone change the history?', 'Audit Trail → Verify integrity (hash chain; updates blocked by the database).'],
+                ['Can someone change the history?', 'Audit ledger → Verify integrity (hash chain; updates blocked by the database).'],
+                ['Did you apply EBIOS RM?', 'Risk → EBIOS RM study: the five ANSSI workshops, threat map, attack scenarios and the PACS.'],
+                ['How much could this cost us?', 'Risk → Quantification: Monte Carlo loss exceedance curve, inherent versus residual, value of each control.'],
+                ['Are you compliant with NIS2 / ISO 27001?', 'Compliance → Frameworks: coverage per framework and the control crosswalk.'],
+                ['How do you know a control works?', 'Compliance → Controls → Run monitoring: tests computed from live platform data.'],
+                ['What about NIS2 / GDPR deadlines?', 'Incident → Regulatory reporting: 24 h / 72 h / 1 month clocks from awareness.'],
+                ['What do you show the board?', 'Assurance → Board pack: print or save as PDF.'],
               ].map(([q, a]) => <tr key={q}><td className="small strong">{q}</td><td className="small">{a}</td></tr>)}
             </tbody></table>
           </Card>
@@ -171,7 +177,7 @@ export function Guide() {
             <div className="stack">
               <Person p={{ name: current?.full_name ?? '', role: current?.role }} />
               {memberships.map(m => <div key={m.org_id} className="small">{m.org_name}: <b>{m.role}</b></div>)}
-              <div className="xs muted">Sign out from the menu at the top right. Passwords are individual; ask the Risk Coordinator if you need a reset.</div>
+              <div className="xs muted">Sign out from your name at the bottom of the sidebar. Passwords are individual; ask the Risk Coordinator if you need a reset.</div>
             </div>
           </Card>
           <Card title="Notifications">

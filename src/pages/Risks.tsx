@@ -157,10 +157,10 @@ function Spark({ pts, warn, crit, dir }: { pts: { v: number }[]; warn: number; c
   const x = (i: number) => (i / Math.max(1, vals.length - 1)) * W;
   return (
     <svg width={W} height={H} aria-hidden>
-      <line x1={0} x2={W} y1={y(warn)} y2={y(warn)} stroke="#e0a100" strokeDasharray="3 3" strokeWidth={1} />
-      <line x1={0} x2={W} y1={y(crit)} y2={y(crit)} stroke="#c0391b" strokeDasharray="3 3" strokeWidth={1} />
-      <polyline fill="none" stroke="#2448d8" strokeWidth={1.6} points={vals.map((v, i) => `${x(i)},${y(v)}`).join(' ')} />
-      <circle cx={x(vals.length - 1)} cy={y(vals[vals.length - 1])} r={2.6} fill={dir === 'higher_is_worse' ? (vals[vals.length - 1] >= crit ? '#c0391b' : vals[vals.length - 1] >= warn ? '#e0a100' : '#1d7a46') : (vals[vals.length - 1] <= crit ? '#c0391b' : vals[vals.length - 1] <= warn ? '#e0a100' : '#1d7a46')} />
+      <line x1={0} x2={W} y1={y(warn)} y2={y(warn)} stroke="var(--medium)" strokeDasharray="3 3" strokeWidth={1} />
+      <line x1={0} x2={W} y1={y(crit)} y2={y(crit)} stroke="var(--crit)" strokeDasharray="3 3" strokeWidth={1} />
+      <polyline fill="none" stroke="var(--accent)" strokeWidth={1.6} points={vals.map((v, i) => `${x(i)},${y(v)}`).join(' ')} />
+      <circle cx={x(vals.length - 1)} cy={y(vals[vals.length - 1])} r={2.6} fill={dir === 'higher_is_worse' ? (vals[vals.length - 1] >= crit ? 'var(--crit)' : vals[vals.length - 1] >= warn ? 'var(--medium)' : 'var(--pass)') : (vals[vals.length - 1] <= crit ? 'var(--crit)' : vals[vals.length - 1] <= warn ? 'var(--medium)' : 'var(--pass)')} />
     </svg>
   );
 }
