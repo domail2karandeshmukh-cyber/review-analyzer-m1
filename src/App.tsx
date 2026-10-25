@@ -24,6 +24,7 @@ import Policies from './pages/Policies';
 import Vendors from './pages/Vendors';
 import Continuity from './pages/Continuity';
 import Board from './pages/Board';
+import Access from './pages/Access';
 import Audit from './pages/Audit';
 import Organisation from './pages/Organisation';
 import { Departments, Assets, Reports, Guide } from './pages/Misc';
@@ -57,6 +58,7 @@ function Gate() {
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/continuity" element={<Continuity />} />
         <Route path="/board" element={<Board />} />
+        <Route path="/access" element={<Access />} />
         <Route path="/briefing" element={<Overview />} />
         <Route path="/workspace" element={<Workspace />} />
         <Route path="/risks" element={<Risks />} />

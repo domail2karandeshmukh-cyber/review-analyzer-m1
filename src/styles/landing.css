@@ -64,3 +64,11 @@
   .lp-trust, .lp-team { grid-template-columns: 1fr; }
   .lp-sec { padding: 56px 0; }
 }
+.lp-creator { display: flex; align-items: center; gap: 16px; margin-top: 28px; padding: 22px 24px; border-radius: 16px; border: 1px solid var(--accent-line);
+  background: radial-gradient(600px 200px at 0% 0%, var(--accent-wash), transparent 70%), var(--panel); }
+.lp-creator .avatar.lg { width: 56px; height: 56px; font-size: 17px; background: linear-gradient(135deg, #8b8aff, #5b55f0); color: #fff; border-color: transparent; }
+.lp-creator b { display: block; font-size: 20px; letter-spacing: -0.02em; } .lp-creator span { font-size: 13px; color: var(--text-3); }
+.lp-creator .lvl { margin-left: auto; color: #fff; }
+.lp-team { grid-template-columns: repeat(5, 1fr) !important; }
+@media (max-width: 1100px) { .lp-team { grid-template-columns: repeat(2, 1fr) !important; } }
+@media (max-width: 700px) { .lp-team { grid-template-columns: 1fr !important; } .lp-creator { flex-wrap: wrap; } }

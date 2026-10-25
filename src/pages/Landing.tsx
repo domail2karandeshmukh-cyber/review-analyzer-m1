@@ -15,7 +15,7 @@ const STAGES = [
 
 const MODULES: [React.ReactNode, string, string][] = [
   [<ShieldAlert size={18} />, 'Risk register & appetite', 'Inherent, residual and target scores, owners, KRIs and board-approved tolerance per category.'],
-  [<Radar size={18} />, 'EBIOS Risk Manager', 'The five ANSSI workshops, from feared events to the PACS, with a threat map of your ecosystem.'],
+  [<Radar size={18} />, 'EBIOS Risk Manager', 'The five ANSSI workshops, from feared events to the PACS, with an exposure × reliability matrix of your ecosystem.'],
   [<Calculator size={18} />, 'Risk quantification', 'FAIR-style Monte Carlo: expected annual loss, 1-in-10-year loss and the value of each control.'],
   [<Scale size={18} />, 'Compliance crosswalk', 'ISO 27001, NIS2, DORA and GDPR mapped to one control set. Test once, comply many times.'],
   [<ShieldCheck size={18} />, 'Continuous monitoring', 'Controls tested automatically from live platform data: segregation of duties, dual control, ledger integrity, KRIs.'],
@@ -34,8 +34,8 @@ const TRUST: [React.ReactNode, string, string][] = [
 ];
 
 const TEAM = [
-  ['Karan Deshmukh', 'Project Manager / Risk Coordinator'], ['Vijay Bhosale', 'RSSI / CISO'], ['Nandini Vadlamudi', 'Cybersecurity Analyst'],
-  ['Srija Poudapally', 'Finance Director (CFO / DAF)'], ['Vandana Madem', 'Chief Executive Officer'], ['Pavan Sanam', 'IT Operations Manager'],
+  ['Vijay Bhosale', 'RSSI / CISO', 'Admin'], ['Vandana Madem', 'Chief Executive Officer', 'Member'], ['Nandini Vadlamudi', 'Cybersecurity Analyst', 'Member'],
+  ['Srija Poudapally', 'Finance Director (CFO / DAF)', 'Member'], ['Pavan Sanam', 'IT Operations Manager', 'Member'],
 ];
 
 export default function Landing() {
@@ -109,9 +109,15 @@ export default function Landing() {
       <section className="lp-sec" id="team">
         <div className="lp-wrap">
           <div className="lp-kicker">ESAIP · MSc Risk Management · Group 1</div>
-          <h2>The team behind NOVATECH.</h2>
+          <h2>Designed and built by Karan Deshmukh.</h2>
+          <div className="lp-creator">
+            <span className="avatar lg">KD</span>
+            <div><b>Karan Deshmukh</b><span>Creator and platform owner · Project Manager / Risk Coordinator in the NOVATECH case</span></div>
+            <span className="lvl owner">Owner</span>
+          </div>
+          <p className="lp-lead">The Group 1 team plays the NOVATECH roles in the live scenarios. Their business role decides what each person may assess, approve or execute.</p>
           <div className="lp-team">
-            {TEAM.map(([n, r]) => <div key={n} className="lp-person"><span className="avatar lg">{n.split(' ').map(x => x[0]).join('')}</span><div><b>{n}</b><span>{r}</span></div></div>)}
+            {TEAM.map(([n, r, l]) => <div key={n} className="lp-person"><span className="avatar lg">{n.split(' ').map(x => x[0]).join('')}</span><div><b>{n}</b><span>{r}</span></div>{l === 'Admin' && <span className="lvl admin" style={{ marginLeft: 'auto' }}>Admin</span>}</div>)}
           </div>
           <div className="lp-cta">
             <div><h3>Ready to see it live?</h3><p>Sign in with your personal account. Your role decides what you may do.</p></div>
@@ -123,7 +129,7 @@ export default function Landing() {
       <footer className="lp-foot">
         <div className="lp-wrap row between wrap" style={{ gap: 10 }}>
           <span>NOVATECH Services is a fictional company used for the ESAIP case study. Detection feeds and device executions are simulated and labelled as such.</span>
-          <span>© 2026 Group 1</span>
+          <span>Created by Karan Deshmukh · © 2026</span>
         </div>
       </footer>
     </div>

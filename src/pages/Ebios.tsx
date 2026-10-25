@@ -305,52 +305,46 @@ function W2({ L, can, open }: WProps) {
 
 /* ================================================================== W3 */
 function Radar({ list, ppc, sel, onSel }: { list: (Item & { t: number })[]; ppc: Set<string>; sel: string | null; onSel: (r: string) => void }) {
-  const W = 620, H = 560, cx = W / 2, cy = H / 2 + 6, R = 236;
-  const cats = [...new Set(list.map(p => p.data.category as string))];
-  const rOf = (t: number) => R * Math.max(0.1, 1 - Math.min(t, 4) / 4);
-  const rD = rOf(ZONE_DANGER), rC = rOf(ZONE_CONTROL);
-  const sectorAngle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / Math.max(1, cats.length);
-  // place nodes within their category sector, spreading siblings
+  // Exposure × cyber-reliability matrix. Threat = exposure ÷ reliability, so each zone boundary is a ray from the origin.
+  const W = 640, H = 520, m = { l: 62, r: 24, t: 22, b: 54 }, MAX = 16;
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const X = (v: number) => m.l + (v / MAX) * iw;
+  const Y = (v: number) => m.t + ih - (v / MAX) * ih;
+  const ray = (k: number) => { // reliability = exposure / k, clipped to the plot
+    const ex = Math.min(MAX, MAX * k); return `${X(0)},${Y(0)} ${X(ex)},${Y(ex / k)}`;
+  };
+  const danger = `${X(0)},${Y(0)} ${X(MAX)},${Y(0)} ${X(MAX)},${Y(MAX / ZONE_DANGER)}`;
+  const control = `${X(0)},${Y(0)} ${X(MAX)},${Y(MAX / ZONE_DANGER)} ${X(MAX)},${Y(MAX / ZONE_CONTROL)}`;
+  const watch = `${X(0)},${Y(0)} ${X(MAX)},${Y(MAX / ZONE_CONTROL)} ${X(MAX)},${Y(MAX)} ${X(0)},${Y(MAX)}`;
   const nodes = list.map(p => {
-    const ci = cats.indexOf(p.data.category);
-    const sibs = list.filter(x => x.data.category === p.data.category);
-    const k = sibs.indexOf(p);
-    const span = (2 * Math.PI) / Math.max(1, cats.length);
-    const a = sectorAngle(ci) + span * (0.5 + (k - (sibs.length - 1) / 2) * 0.3);
-    const r = rOf(p.t);
-    const exposure = Number(p.data.dependence) * Number(p.data.penetration);
-    return { p, x: cx + r * Math.cos(a), y: cy + r * Math.sin(a), size: 9 + exposure * 0.9, z: zoneOf(p.t) };
+    const ex = Number(p.data.dependence) * Number(p.data.penetration);
+    const rel = Number(p.data.maturity) * Number(p.data.trust);
+    return { p, x: X(ex), y: Y(rel), ex, rel, z: zoneOf(p.t), size: 13 + ex * 0.45 };
   });
   return (
-    <svg className="eb-radar" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Digital threat map of the ecosystem">
-      <circle cx={cx} cy={cy} r={R} className="zone-w" />
-      <circle cx={cx} cy={cy} r={rC} className="zone-c" />
-      <circle cx={cx} cy={cy} r={rD} className="zone-d" />
-      {[0.25, 0.5, 0.75].map(f => <circle key={f} cx={cx} cy={cy} r={R * f} className="ring" />)}
-      {cats.map((c, i) => {
-        const a = sectorAngle(i);
-        const lx = cx + (R + 22) * Math.cos(a + Math.PI / cats.length), ly = cy + (R + 22) * Math.sin(a + Math.PI / cats.length);
-        return (
-          <g key={c}>
-            <line x1={cx} y1={cy} x2={cx + R * Math.cos(a)} y2={cy + R * Math.sin(a)} className="axis" />
-            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" className="sector">{c}</text>
-          </g>
-        );
-      })}
-      <text x={cx} y={cy - R + 14} textAnchor="middle" className="zl w">WATCH</text>
-      <text x={cx} y={cy - rC + 14} textAnchor="middle" className="zl c">CONTROL</text>
-      <text x={cx} y={cy - rD + 14} textAnchor="middle" className="zl d">DANGER</text>
-      <text x={cx} y={cy + 4} textAnchor="middle" className="center">NT</text>
+    <svg className="eb-radar eb-matrix" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Ecosystem exposure and reliability matrix">
+      <polygon points={watch} className="zone-w" />
+      <polygon points={control} className="zone-c" />
+      <polygon points={danger} className="zone-d" />
+      {[4, 8, 12, 16].map(v => <g key={v}>
+        <line x1={X(v)} x2={X(v)} y1={Y(0)} y2={Y(MAX)} className="ring" /><line x1={X(0)} x2={X(MAX)} y1={Y(v)} y2={Y(v)} className="ring" />
+        <text x={X(v)} y={Y(0) + 16} textAnchor="middle" className="sub">{v}</text><text x={X(0) - 8} y={Y(v) + 4} textAnchor="end" className="sub">{v}</text>
+      </g>)}
+      <polyline points={ray(ZONE_DANGER)} className="axis" /><polyline points={ray(ZONE_CONTROL)} className="axis" />
+      <line x1={X(0)} x2={X(MAX)} y1={Y(0)} y2={Y(0)} className="axis" /><line x1={X(0)} x2={X(0)} y1={Y(0)} y2={Y(MAX)} className="axis" />
+      <text x={X(MAX) - 8} y={Y(1.2)} textAnchor="end" className="zl d">DANGER · threat ≥ {ZONE_DANGER}</text>
+      <text x={X(MAX) - 8} y={Y(MAX / ZONE_DANGER) - 8} textAnchor="end" className="zl c">CONTROL · ≥ {ZONE_CONTROL}</text>
+      <text x={X(1)} y={Y(MAX - 1)} className="zl w">WATCH</text>
+      <text x={m.l + iw / 2} y={H - 10} textAnchor="middle" className="sector">Exposure → dependence × penetration</text>
+      <text transform={`translate(16 ${m.t + ih / 2}) rotate(-90)`} textAnchor="middle" className="sector">Cyber reliability → maturity × trust</text>
       {nodes.map(({ p, x, y, size, z }) => {
         const isPpc = ppc.has(p.ref ?? '');
-        const right = x >= cx;
         return (
-          <g key={p.id} className={`pp ${z}`} onClick={() => onSel(p.ref ?? '')} opacity={sel && sel !== p.ref ? 0.45 : 1}>
+          <g key={p.id} className={`pp ${z}`} onClick={() => onSel(p.ref ?? '')} opacity={sel && sel !== p.ref ? 0.4 : 1} style={{ cursor: 'pointer' }}>
             {isPpc && <circle cx={x} cy={y} r={size + 6} className="ppc" />}
             <circle cx={x} cy={y} r={size} className="b" />
             <text x={x} y={y + 3.5} textAnchor="middle" className="ref">{p.ref}</text>
-            <text x={right ? x + size + 9 : x - size - 9} y={y - 2} textAnchor={right ? 'start' : 'end'}>{p.title}</text>
-            <text x={right ? x + size + 9 : x - size - 9} y={y + 12} textAnchor={right ? 'start' : 'end'} className="sub">threat {p.t.toFixed(2)}{isPpc ? ' · PPC' : ''}</text>
+            <text x={x} y={y + size + 14} textAnchor="middle" className="sub">{p.t.toFixed(2)}</text>
           </g>
         );
       })}
@@ -383,7 +377,7 @@ function W3({ L, can, open, stakeholders, ppc }: WProps & { stakeholders: (Item 
   const sorted = [...stakeholders].sort((a, b) => b.t - a.t);
   return (
     <div className="stack loose">
-      <Card title="Digital threat map of the ecosystem" sub="Cartographie de la menace numérique — the closer to the centre, the more dangerous the stakeholder" flush
+      <Card title="Ecosystem threat matrix" sub="Cartographie de la menace numérique as an exposure × reliability matrix: bottom-right is where an attacker would come from" flush
         actions={can && <AddBtn on={() => open('stakeholder', 3)}>Stakeholder</AddBtn>}>
         <div className="eb-radar-wrap">
           <div style={{ padding: '6px 10px' }}><Radar list={stakeholders} ppc={ppc} sel={sel} onSel={r => setSel(sel === r ? null : r)} /></div>

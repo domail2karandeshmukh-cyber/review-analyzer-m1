@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { X, Lock, Inbox, AlertTriangle, CheckCircle2, Info, FlaskConical } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { initials, levelOf, statusOf, SEVERITY } from '../lib/format';
 import type { Tone } from '../lib/format';
 
@@ -59,7 +59,13 @@ export function Card({ title, sub, actions, children, flush, className }: { titl
   );
 }
 
+const SECTION: [string, string][] = [['/risks', 'Risk'], ['/ebios', 'Risk · EBIOS Risk Manager'], ['/quant', 'Risk · Quantification'], ['/compliance', 'Compliance'], ['/controls', 'Compliance'],
+  ['/policies', 'Compliance'], ['/incidents', 'Operations'], ['/actions', 'Operations'], ['/approvals', 'Operations'], ['/vendors', 'Operations · Third parties'], ['/continuity', 'Operations · Resilience'],
+  ['/audit', 'Assurance'], ['/board', 'Assurance'], ['/reports', 'Assurance'], ['/scenarios', 'Assurance · Rehearsal'], ['/access', 'Workspace'], ['/organisation', 'Workspace'],
+  ['/assets', 'Workspace'], ['/departments', 'Workspace'], ['/guide', 'Workspace'], ['/workspace', 'Overview'], ['/briefing', 'Overview']];
 export function PageHead({ eyebrow, title, desc, actions }: { eyebrow?: string; title: ReactNode; desc?: ReactNode; actions?: ReactNode }) {
+  const loc = useLocation();
+  eyebrow = eyebrow ?? SECTION.find(([p]) => loc.pathname.startsWith(p))?.[1];
   return (
     <div className="page-head">
       <div>

@@ -162,7 +162,7 @@ export function Guide() {
                 ['What if this were a bank?', 'Organisation switcher (bottom of the sidebar) → Banque Atlantique; Scenario C.'],
                 ['How do we know it worked?', 'Verification criteria evaluated against data; evidence; residual risk.'],
                 ['Can someone change the history?', 'Audit ledger → Verify integrity (hash chain; updates blocked by the database).'],
-                ['Did you apply EBIOS RM?', 'Risk → EBIOS RM study: the five ANSSI workshops, threat map, attack scenarios and the PACS.'],
+                ['Did you apply EBIOS RM?', 'Risk → EBIOS RM study: the five ANSSI workshops, ecosystem threat matrix, attack scenarios and the PACS.'],
                 ['How much could this cost us?', 'Risk → Quantification: Monte Carlo loss exceedance curve, inherent versus residual, value of each control.'],
                 ['Are you compliant with NIS2 / ISO 27001?', 'Compliance → Frameworks: coverage per framework and the control crosswalk.'],
                 ['How do you know a control works?', 'Compliance → Controls → Run monitoring: tests computed from live platform data.'],

@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate, Link } from 'react-router-dom';
 import {
   Home, Inbox, ShieldAlert, Building2, ListChecks, Stamp, Siren, Server, PlayCircle, ScrollText, FileBarChart2, Network, BookOpen, Bell, Search, Menu,
-  LogOut, BellRing, X, CornerDownLeft, MonitorPlay, Radar, Target, Calculator, Scale, ShieldCheck, FileText, Truck, LifeBuoy, Presentation, ChevronRight,
-  Sun, Moon, Waypoints,
+  LogOut, BellRing, X, CornerDownLeft, MonitorPlay, Radar, Calculator, Scale, ShieldCheck, FileText, Truck, LifeBuoy, Presentation, ChevronDown,
+  Sun, Moon, Waypoints, KeyRound, Compass, Crown,
 } from 'lucide-react';
 import { useRpc, useSession } from '../lib/session';
 import { rpc } from '../lib/supabase';
@@ -12,8 +12,8 @@ import { ago } from '../lib/format';
 import { Avatar, Badge, useToast } from './ui';
 import { TourProvider, useTour } from './Tour';
 
-type NavItem = { to: string; label: string; icon: ReactNode; count?: number; isNew?: boolean };
-type Group = { label: string; items: NavItem[] };
+type NavItem = { to: string; label: string; icon: ReactNode; desc?: string; count?: number; isNew?: boolean };
+type Group = { label: string; key: string; blurb: string; items: NavItem[] };
 
 export function Logo({ size = 28 }: { size?: number }) {
   return (
@@ -31,45 +31,48 @@ export function useTheme() {
   return [theme, () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))] as const;
 }
 
+export const LEVEL_LABEL: Record<string, string> = { owner: 'Owner', admin: 'Admin', member: 'Member' };
+
 export function useNavGroups(): Group[] {
   const { orgId } = useSession();
   const work = useRpc<any>('grc_my_work', { p_org: orgId }, { poll: 15000 });
   const taskCount = (work.data?.tasks?.length ?? 0) + (work.data?.incidents?.length ?? 0);
   const approvals = (work.data?.tasks ?? []).filter((t: any) => ['approve', 'post_review', 'assess'].includes(t.task)).length;
   return [
-    { label: 'Overview', items: [
-      { to: '/', label: 'Home', icon: <Home size={15} /> },
-      { to: '/workspace', label: 'My work', icon: <Inbox size={15} />, count: taskCount },
-      { to: '/live', label: 'Live operations', icon: <Waypoints size={15} /> },
+    { label: 'Overview', key: 'overview', blurb: 'Where you stand and what needs you.', items: [
+      { to: '/', label: 'Home', icon: <Home size={17} />, desc: 'Your priorities and the posture at a glance' },
+      { to: '/workspace', label: 'My work', icon: <Inbox size={17} />, desc: 'Decisions and tasks routed to you', count: taskCount },
+      { to: '/live', label: 'Live operations', icon: <Waypoints size={17} />, desc: 'Who holds each decision, right now' },
     ] },
-    { label: 'Risk', items: [
-      { to: '/risks', label: 'Risk register', icon: <ShieldAlert size={15} /> },
-      { to: '/ebios', label: 'EBIOS RM study', icon: <Radar size={15} />, isNew: true },
-      { to: '/quant', label: 'Quantification', icon: <Calculator size={15} />, isNew: true },
+    { label: 'Risk', key: 'risk', blurb: 'Identify, analyse and put a price on risk.', items: [
+      { to: '/risks', label: 'Risk register', icon: <ShieldAlert size={17} />, desc: 'Scores, owners, KRIs and treatment' },
+      { to: '/ebios', label: 'EBIOS RM study', icon: <Radar size={17} />, desc: 'The five ANSSI workshops, end to end', isNew: true },
+      { to: '/quant', label: 'Quantification', icon: <Calculator size={17} />, desc: 'Monte Carlo loss in euros, value of controls', isNew: true },
     ] },
-    { label: 'Compliance', items: [
-      { to: '/compliance', label: 'Frameworks', icon: <Scale size={15} />, isNew: true },
-      { to: '/controls', label: 'Controls', icon: <ShieldCheck size={15} />, isNew: true },
-      { to: '/policies', label: 'Policies', icon: <FileText size={15} />, isNew: true },
+    { label: 'Compliance', key: 'compliance', blurb: 'One control set, every framework.', items: [
+      { to: '/compliance', label: 'Frameworks', icon: <Scale size={17} />, desc: 'ISO 27001, NIS2, GDPR, DORA coverage', isNew: true },
+      { to: '/controls', label: 'Controls', icon: <ShieldCheck size={17} />, desc: 'Library and continuous monitoring', isNew: true },
+      { to: '/policies', label: 'Policies', icon: <FileText size={17} />, desc: 'Approved rules and acknowledgements', isNew: true },
     ] },
-    { label: 'Operations', items: [
-      { to: '/incidents', label: 'Incidents', icon: <Siren size={15} /> },
-      { to: '/actions', label: 'Action plans', icon: <ListChecks size={15} /> },
-      { to: '/approvals', label: 'Approvals', icon: <Stamp size={15} />, count: approvals },
-      { to: '/vendors', label: 'Third parties', icon: <Truck size={15} />, isNew: true },
-      { to: '/continuity', label: 'Continuity', icon: <LifeBuoy size={15} />, isNew: true },
+    { label: 'Operations', key: 'ops', blurb: 'From detection to verified response.', items: [
+      { to: '/incidents', label: 'Incidents', icon: <Siren size={17} />, desc: 'Investigation and regulatory clocks' },
+      { to: '/actions', label: 'Action plans', icon: <ListChecks size={17} />, desc: 'Treatment and response, owner to proof' },
+      { to: '/approvals', label: 'Approvals', icon: <Stamp size={17} />, desc: 'Policy-routed decisions, dual control', count: approvals },
+      { to: '/vendors', label: 'Third parties', icon: <Truck size={17} />, desc: 'Supplier tiers and the DORA register', isNew: true },
+      { to: '/continuity', label: 'Continuity', icon: <LifeBuoy size={17} />, desc: 'BIA, recovery targets, dependencies', isNew: true },
     ] },
-    { label: 'Assurance', items: [
-      { to: '/audit', label: 'Audit ledger', icon: <ScrollText size={15} /> },
-      { to: '/board', label: 'Board pack', icon: <Presentation size={15} />, isNew: true },
-      { to: '/reports', label: 'Reports', icon: <FileBarChart2 size={15} /> },
+    { label: 'Assurance', key: 'assurance', blurb: 'Prove it to the board and the auditor.', items: [
+      { to: '/board', label: 'Board pack', icon: <Presentation size={17} />, desc: 'Print-ready report from live data', isNew: true },
+      { to: '/audit', label: 'Audit ledger', icon: <ScrollText size={17} />, desc: 'Hash-chained, tamper-evident history' },
+      { to: '/reports', label: 'Reports', icon: <FileBarChart2 size={17} />, desc: 'Register and treatment reports' },
+      { to: '/scenarios', label: 'Scenarios', icon: <PlayCircle size={17} />, desc: 'Run a live incident rehearsal' },
     ] },
-    { label: 'Workspace', items: [
-      { to: '/scenarios', label: 'Scenarios', icon: <PlayCircle size={15} /> },
-      { to: '/organisation', label: 'Organisation', icon: <Network size={15} /> },
-      { to: '/assets', label: 'Assets', icon: <Server size={15} /> },
-      { to: '/departments', label: 'Departments', icon: <Building2 size={15} /> },
-      { to: '/guide', label: 'Guide', icon: <BookOpen size={15} /> },
+    { label: 'Workspace', key: 'workspace', blurb: 'People, structure and access.', items: [
+      { to: '/access', label: 'Team & access', icon: <KeyRound size={17} />, desc: 'Owner, admins and members' },
+      { to: '/organisation', label: 'Organisation', icon: <Network size={17} />, desc: 'Roles, reporting lines, approval policy' },
+      { to: '/assets', label: 'Assets', icon: <Server size={17} />, desc: 'Supporting systems and devices' },
+      { to: '/departments', label: 'Departments', icon: <Building2 size={17} />, desc: 'Who owns which risks' },
+      { to: '/guide', label: 'Guide', icon: <BookOpen size={17} />, desc: 'Presenter notes and answers' },
     ] },
   ];
 }
@@ -80,103 +83,153 @@ export function Shell({ children }: { children: ReactNode }) {
 
 function ShellInner({ children }: { children: ReactNode }) {
   const { current, memberships, setOrg, signOut, orgId } = useSession();
-  const [open, setOpen] = useState(false);
+  const [mobile, setMobile] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [mega, setMega] = useState<string | null>(null);
   const [cmd, setCmd] = useState(false);
   const [theme, toggleTheme] = useTheme();
+  const tour = useTour();
   const loc = useLocation();
   const groups = useNavGroups();
-  useEffect(() => { setOpen(false); setMenu(false); }, [loc.pathname]);
+  const closeT = useRef<number | null>(null);
+  useEffect(() => { setMobile(false); setMenu(false); setMega(null); window.scrollTo(0, 0); }, [loc.pathname]);
   useEffect(() => {
-    const k = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setCmd(c => !c); } };
+    const k = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setCmd(c => !c); }
+      if (e.key === 'Escape') { setMega(null); setMenu(false); }
+    };
     window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k);
   }, []);
   const chain = useRpc<any>('grc_verify_audit_chain', {}, { poll: 120000 });
   const isBleed = loc.pathname === '/live';
-  const flat = groups.flatMap(g => g.items.map(i => ({ ...i, group: g.label })));
+  const flat = groups.flatMap(g => g.items.map(i => ({ ...i, group: g.label, gkey: g.key })));
   const here = flat.filter(i => (i.to === '/' ? loc.pathname === '/' : loc.pathname.startsWith(i.to))).sort((a, b) => b.to.length - a.to.length)[0];
   const tasks = groups[0].items[1].count ?? 0;
-
-  const sidebar = (
-    <aside className={`sidebar ${open ? 'open' : ''}`} aria-label="Navigation">
-      <div className="side-brand">
-        <Logo />
-        <div style={{ minWidth: 0 }}><div className="nm">NOVATECH IRM</div><div className="sb">{current?.kind === 'template' ? 'Banque Atlantique · fictional' : 'Integrated risk management'}</div></div>
-        {open && <button className="iconbtn" style={{ marginLeft: 'auto' }} onClick={() => setOpen(false)} aria-label="Close"><X size={17} /></button>}
-      </div>
-      <button className="side-search" onClick={() => setCmd(true)}><Search size={14} />Search or jump to…<kbd>Ctrl K</kbd></button>
-      <nav className="side-scroll">
-        {groups.map(g => (
-          <div key={g.label} className="side-group">
-            <div className="gl">{g.label}</div>
-            {g.items.map(i => (
-              <NavLink key={i.to} to={i.to} end={i.to === '/'} className="side-link">
-                {i.icon}<span>{i.label}</span>
-                {!!i.count && <span className="count">{i.count}</span>}
-              </NavLink>
-            ))}
-          </div>
-        ))}
-      </nav>
-      <div className="side-foot">
-        {memberships.length > 1 && (
-          <select className="org-switch" value={orgId} onChange={e => setOrg(e.target.value)} aria-label="Organisation">
-            {memberships.map(m => <option key={m.org_id} value={m.org_id}>{m.org_id === 'NT' ? 'NOVATECH Services' : 'Banque Atlantique (fictional)'}</option>)}
-          </select>
-        )}
-        <div style={{ position: 'relative' }}>
-          <button className="me" onClick={() => setMenu(m => !m)} aria-haspopup="menu">
-            <Avatar name={current?.full_name} size="sm" />
-            <span className="w"><b>{current?.full_name}</b><span>{current?.role}</span></span>
-          </button>
-          {menu && (
-            <div className="card" style={{ position: 'absolute', left: 0, bottom: 46, width: 280, zIndex: 60, boxShadow: 'var(--shadow-pop)' }} role="menu">
-              <div style={{ padding: 14 }} className="stack tight">
-                <div className="row"><Avatar name={current?.full_name} size="lg" /><div><div className="strong">{current?.full_name}</div><div className="small muted">{current?.role}</div></div></div>
-                <div className="xs muted">{current?.department}{current?.is_student ? ' · Group 1 demonstration role' : ''}</div>
-                {current?.delegated_roles?.map((x, i) => <Badge key={i} tone="info">Acting for {x.from}</Badge>)}
-              </div>
-              <div className="divider" style={{ margin: 0 }} />
-              <button className="btn ghost block" style={{ justifyContent: 'flex-start', borderRadius: 0, height: 38 }} onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}{theme === 'dark' ? 'Light theme' : 'Dark theme'}</button>
-              <button className="btn ghost block" style={{ justifyContent: 'flex-start', borderRadius: 0, height: 38 }} onClick={signOut}><LogOut size={15} />Sign out</button>
-            </div>
-          )}
-        </div>
-      </div>
-    </aside>
-  );
+  const section = groups.find(g => g.key === here?.gkey);
+  const level = (current as any)?.platform_role ?? 'member';
+  const openMega = (k: string) => { if (closeT.current) window.clearTimeout(closeT.current); setMega(k); };
+  const leaveMega = () => { if (closeT.current) window.clearTimeout(closeT.current); closeT.current = window.setTimeout(() => setMega(null), 160); };
+  const mg = groups.find(g => g.key === mega);
 
   return (
-    <div className="app">
-      {sidebar}
-      {open && <div className="side-scrim" onClick={() => setOpen(false)} />}
-      <div className="main">
-        <header className="topbar">
-          <button className="iconbtn mobile-only" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={18} /></button>
-          <div className="crumbs">
-            <span className="desktop-only">{current?.org_id === 'BK' ? 'Banque Atlantique' : 'NOVATECH'}</span>
-            <ChevronRight size={13} className="desktop-only" />
-            {here && <><span className="desktop-only">{here.group}</span><ChevronRight size={13} className="desktop-only" /><b>{here.label}</b></>}
-          </div>
-          <div className="spacer" />
-          {chain.data && (
-            <Link to="/audit?verify=1" className={`pill-stat desktop-only ${chain.data.ok ? '' : 'bad'}`} title="Hash-chained audit trail, recomputed by the server">
-              <i />{chain.data.ok ? `Ledger intact · ${chain.data.checked}` : 'Ledger broken'}
-            </Link>
-          )}
-          <Link to="/present" className="btn sm desktop-only"><MonitorPlay size={14} />Present</Link>
-          <button className="iconbtn" onClick={toggleTheme} aria-label="Toggle theme" title="Toggle light / dark">{theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}</button>
+    <div className="app2">
+      <header className="nav" onMouseLeave={leaveMega}>
+        <div className="nav-in">
+          <button className="iconbtn mobile-only" onClick={() => setMobile(true)} aria-label="Open menu"><Menu size={18} /></button>
+          <Link to="/" className="nav-brand" aria-label="NOVATECH IRM home"><Logo /><span>NOVATECH<em>IRM</em></span></Link>
+          <nav className="nav-links desktop-only" aria-label="Main">
+            {groups.map(g => (
+              <button key={g.key} className={`nav-l ${section?.key === g.key ? 'on' : ''} ${mega === g.key ? 'open' : ''}`}
+                onMouseEnter={() => openMega(g.key)} onFocus={() => openMega(g.key)} onClick={() => setMega(m => (m === g.key ? null : g.key))} aria-expanded={mega === g.key}>
+                {g.label}<ChevronDown size={13} />
+                {g.items.some(i => i.count) && <span className="nav-dot" />}
+              </button>
+            ))}
+          </nav>
+          <div className="nav-sp" />
+          <button className="nav-search" onClick={() => setCmd(true)}><Search size={14} /><span className="desktop-only">Search</span><kbd className="desktop-only">Ctrl K</kbd></button>
+          <Link to="/present" className="iconbtn desktop-only" title="Present mode"><MonitorPlay size={16} /></Link>
           <button className="iconbtn" onClick={() => setNotifOpen(true)} aria-label="Notifications"><NotifBell /></button>
-        </header>
-        <main className={`content ${isBleed ? 'bleed' : ''}`}>{children}</main>
-      </div>
+          <div style={{ position: 'relative' }}>
+            <button className="nav-me" onClick={() => setMenu(m => !m)} aria-haspopup="menu" title={current?.full_name}>
+              <Avatar name={current?.full_name} size="sm" />
+              {level !== 'member' && <span className={`lvl ${level}`}>{LEVEL_LABEL[level]}</span>}
+            </button>
+            {menu && (
+              <div className="menu-pop" role="menu">
+                <div className="mp-head">
+                  <Avatar name={current?.full_name} size="lg" />
+                  <div style={{ minWidth: 0 }}>
+                    <div className="strong" style={{ fontSize: 14 }}>{current?.full_name}</div>
+                    <div className="xs muted">{current?.role}</div>
+                    <div className="row" style={{ gap: 6, marginTop: 6 }}>
+                      <span className={`lvl ${level}`}>{level === 'owner' && <Crown size={11} />}{LEVEL_LABEL[level]}</span>
+                      {current?.delegated_roles?.map((x, i) => <Badge key={i} tone="info">Acting for {x.from}</Badge>)}
+                    </div>
+                  </div>
+                </div>
+                {memberships.length > 1 && (
+                  <div style={{ padding: '0 12px 10px' }}>
+                    <div className="xs muted" style={{ marginBottom: 4 }}>Organisation</div>
+                    <select className="select" value={orgId} onChange={e => setOrg(e.target.value)} aria-label="Organisation">
+                      {memberships.map(m => <option key={m.org_id} value={m.org_id}>{m.org_id === 'NT' ? 'NOVATECH Services' : 'Banque Atlantique (fictional)'}</option>)}
+                    </select>
+                  </div>
+                )}
+                <div className="mp-list">
+                  <Link to="/access" className="mp-i"><KeyRound size={15} />Team & access</Link>
+                  <button className="mp-i" onClick={() => { setMenu(false); tour.start(); }}><Compass size={15} />Guided tour</button>
+                  <button className="mp-i" onClick={toggleTheme}>{theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}{theme === 'dark' ? 'Light theme' : 'Dark theme'}</button>
+                  <Link to="/guide" className="mp-i"><BookOpen size={15} />Guide</Link>
+                  <button className="mp-i" onClick={signOut}><LogOut size={15} />Sign out</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {mg && (
+          <div className="mega desktop-only" onMouseEnter={() => openMega(mg.key)}>
+            <div className="mega-in">
+              <div className="mega-side">
+                <div className="mega-k">{mg.label}</div>
+                <div className="mega-b">{mg.blurb}</div>
+                {chain.data && <Link to="/audit?verify=1" className={`pill-stat ${chain.data.ok ? '' : 'bad'}`} style={{ marginTop: 14 }}><i />{chain.data.ok ? `Ledger intact · ${chain.data.checked} entries` : 'Ledger broken'}</Link>}
+              </div>
+              <div className="mega-grid">
+                {mg.items.map(i => (
+                  <NavLink key={i.to} to={i.to} end={i.to === '/'} className="mega-i">
+                    <span className="mi-ic">{i.icon}</span>
+                    <span className="mi-t">{i.label}{!!i.count && <span className="count">{i.count}</span>}{i.isNew && <span className="mi-new">New</span>}</span>
+                    <span className="mi-d">{i.desc}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {section && section.items.length > 1 && !isBleed && (
+          <div className="subnav">
+            <div className="subnav-in">
+              {section.items.map(i => (
+                <NavLink key={i.to} to={i.to} end={i.to === '/'} className="sn">{i.label}{!!i.count && <span className="count">{i.count}</span>}</NavLink>
+              ))}
+            </div>
+          </div>
+        )}
+      </header>
+      {mega && <div className="mega-scrim desktop-only" onMouseEnter={leaveMega} onClick={() => setMega(null)} />}
+      <main className={`page ${isBleed ? 'bleed' : ''}`}>
+        {!isBleed && <div className="page-glow" aria-hidden />}
+        <div className={isBleed ? '' : 'content'}>{children}</div>
+        {!isBleed && (
+          <footer className="app-foot">
+            <div className="row" style={{ gap: 8 }}><Logo size={20} /><span><b>NOVATECH IRM</b> · created by Karan Deshmukh</span></div>
+            <span>NOVATECH Services is the fictional ESAIP case company · simulated feeds and executions are labelled</span>
+          </footer>
+        )}
+      </main>
+
+      {mobile && (
+        <div className="m-menu">
+          <div className="row between" style={{ marginBottom: 14 }}>
+            <Link to="/" className="nav-brand"><Logo /><span>NOVATECH<em>IRM</em></span></Link>
+            <button className="iconbtn" onClick={() => setMobile(false)} aria-label="Close"><X size={20} /></button>
+          </div>
+          {groups.map(g => (
+            <div key={g.key} className="m-g">
+              <div className="m-gl">{g.label}</div>
+              {g.items.map(i => <NavLink key={i.to} to={i.to} end={i.to === '/'} className="m-i">{i.icon}{i.label}{!!i.count && <span className="count">{i.count}</span>}</NavLink>)}
+            </div>
+          ))}
+        </div>
+      )}
       <nav className="bottom-nav" aria-label="Quick navigation">
         <NavLink to="/" end><Home size={19} />Home</NavLink>
         <NavLink to="/workspace"><Inbox size={19} />My work{tasks > 0 && <span className="count">{tasks}</span>}</NavLink>
-        <NavLink to="/risks"><Target size={19} />Risks</NavLink>
+        <NavLink to="/risks"><ShieldAlert size={19} />Risks</NavLink>
         <NavLink to="/incidents"><Siren size={19} />Incidents</NavLink>
-        <a href="#" onClick={e => { e.preventDefault(); setOpen(true); }}><Menu size={19} />More</a>
+        <a href="#" onClick={e => { e.preventDefault(); setMobile(true); }}><Menu size={19} />More</a>
       </nav>
       {notifOpen && <NotificationDrawer onClose={() => setNotifOpen(false)} />}
       {cmd && <CommandPalette onClose={() => setCmd(false)} items={flat} />}
