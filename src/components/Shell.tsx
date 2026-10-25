@@ -4,6 +4,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Inbox, ShieldAlert, Building2, ListChecks, Stamp, Siren, Server, PlayCircle, ScrollText,
   FileBarChart2, Network, BookOpen, Bell, Search, Menu, LogOut, BellRing, ChevronDown, X, CornerDownLeft,
+  MonitorPlay,
 } from 'lucide-react';
 import { useRpc, useSession } from '../lib/session';
 import { rpc } from '../lib/supabase';
@@ -50,6 +51,7 @@ export function Shell({ children }: { children: ReactNode }) {
     { to: '/reports', label: 'Reports', icon: <FileBarChart2 size={15} /> },
     { to: '/organisation', label: 'Organisation and roles', icon: <Network size={15} /> },
     { to: '/guide', label: 'Guide', icon: <BookOpen size={15} /> },
+    { to: '/present', label: 'Present mode', icon: <MonitorPlay size={15} /> },
   ];
   const d = ov.data;
 

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Pause, RotateCcw, CheckCircle2, Circle, ArrowRight } from 'lucide-react';
+import { Play, Pause, RotateCcw, ArrowRight, MonitorPlay } from 'lucide-react';
 import { rpc } from '../lib/supabase';
 import { useRpc, useSession } from '../lib/session';
-import { fmtDateTime } from '../lib/format';
+import { fmtDateTime, initials } from '../lib/format';
 import { Badge, Card, Field, Loading, Modal, Notice, PageHead, Status, useToast } from '../components/ui';
 
 export default function Scenarios() {
@@ -27,30 +27,31 @@ export default function Scenarios() {
           const doneCount = s.run ? s.steps.filter((x: any) => x.done).length : 0;
           return (
             <Card key={s.code} title={<span className="row wrap">{s.title}{s.org_id === 'BK' && <Badge tone="warning">Fictional bank</Badge>}</span>} sub={s.summary}
-              actions={s.can_run && <>
+              actions={<>
+                <Link className="btn" to={`/present?org=${s.org_id}&s=${s.code}`}><MonitorPlay size={15} />Present</Link>
+                {s.can_run && <>
                 {!running && <button className="btn primary" onClick={() => act('grc_scenario_start', { p_code: s.code }, `${s.title} started`)}><Play size={15} />{s.run ? 'Start new run' : 'Start'}</button>}
                 {running && <button className="btn" onClick={() => act('grc_scenario_set_paused', { p_run: s.run.id, p_paused: s.run.status === 'active' }, s.run.status === 'active' ? 'Paused' : 'Resumed')}>{s.run.status === 'active' ? <><Pause size={15} />Pause</> : <><Play size={15} />Resume</>}</button>}
                 {s.run && s.run.status !== 'reset' && <button className="btn danger-ghost" onClick={() => { setReset(s); setReason(''); }}><RotateCcw size={15} />Reset</button>}
-              </>}>
+              </>}</>}>
               <div className="stack">
                 <div className="row wrap small">
                   {s.run ? <><Status s={s.run.status} /><span className="muted">Started {fmtDateTime(s.run.started_at)} by {s.run.started_by}</span><b>{doneCount}/{s.steps.length} steps complete</b></> : <span className="muted">Not started.</span>}
                   {s.incident && <Link to={`/incidents/${s.incident.id}`} onClick={() => s.org_id !== orgId && setOrg(s.org_id)} className="btn sm">Incident {s.incident.ref} <ArrowRight size={13} /></Link>}
                 </div>
-                <div className="stack tight">
+                <ol className="story">
                   {s.steps.map((st: any) => {
                     const isNow = s.run && running && st.n === s.current_step;
                     return (
-                      <div key={st.n} className="row top" style={{ padding: '8px 10px', borderRadius: 8, background: isNow ? 'var(--accent-weak)' : undefined, border: isNow ? '1px solid var(--accent-line)' : '1px solid transparent' }}>
-                        {st.done ? <CheckCircle2 size={18} color="var(--success)" /> : <Circle size={18} color={isNow ? 'var(--accent)' : 'var(--border-strong)'} />}
-                        <div className="grow">
-                          <div className="row wrap"><b className="small">{st.n}. {st.title}</b><span className="xs muted">{st.who}</span>{isNow && <Badge tone="accent">Now</Badge>}</div>
-                          <div className="xs muted">{st.description}</div>
-                        </div>
-                      </div>
+                      <li key={st.n} className={st.done ? 'done' : isNow ? 'now' : ''}>
+                        <div className="story-n">{st.done ? '✓' : st.n}</div>
+                        <div className="story-t">{st.title}</div>
+                        <div className="story-d">{st.description}</div>
+                        <div className="story-who">{(st.people?.length ? st.people : [st.who]).map((p: string) => <span key={p} className="avatar sm" title={p}>{initials(p)}</span>)}<span>{st.who}</span></div>
+                      </li>
                     );
                   })}
-                </div>
+                </ol>
                 {s.actions.length > 0 && (
                   <div className="stack tight">
                     <div className="section-title">Actions in this run</div>

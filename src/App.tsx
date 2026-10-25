@@ -13,6 +13,7 @@ import ActionDetail from './pages/ActionDetail';
 import Approvals from './pages/Approvals';
 import { Incidents, IncidentDetail } from './pages/Incidents';
 import Scenarios from './pages/Scenarios';
+import Present from './pages/Present';
 import Audit from './pages/Audit';
 import Organisation from './pages/Organisation';
 import { Departments, Assets, Reports, Guide } from './pages/Misc';
@@ -30,7 +31,9 @@ function Gate() {
     </div>
   );
   return (
-    <Shell>
+    <Routes>
+      <Route path="/present" element={<Present />} />
+      <Route path="*" element={<Shell>
       <Routes>
         <Route path="/" element={<Situation />} />
         <Route path="/briefing" element={<Overview />} />
@@ -50,7 +53,8 @@ function Gate() {
         <Route path="/guide" element={<Guide />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Shell>
+    </Shell>} />
+    </Routes>
   );
 }
 

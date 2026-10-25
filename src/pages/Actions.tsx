@@ -33,6 +33,16 @@ export default function Actions() {
       <PageHead title="Action plans"
         desc="Every treatment, containment or business action with its owner, approval route, executor, deadline and verification. Status changes only through authorised steps."
         actions={can('action.propose') && <button className="btn primary" onClick={() => setNewOpen(true)}><Plus size={16} />New action</button>} />
+      <div className="pipe" role="group" aria-label="Pipeline">
+        {[['draft', 'Prepare', 'Drafts and revisions', (data ?? []).filter(a => ['draft', 'reopened'].includes(a.status)).length, 'open'],
+          ['approval', 'Authorise', 'Assessment and approval', counts.approval, 'approval'],
+          ['execution', 'Execute', 'Approved, scheduled, running', counts.execution, 'execution'],
+          ['verification', 'Verify', 'Waiting for an independent check', counts.verification, 'verification'],
+          ['closed', 'Sealed', 'Completed, rejected or cancelled', counts.closed, 'closed']].map(([k, l, d, n, grp], i) => (
+          <button key={k as string} className={`pipe-s ${g === grp && k !== 'draft' ? 'on' : ''}`} onClick={() => setG(grp as string)}>
+            <span className="pipe-i">0{i + 1}</span><span className="pipe-n">{loading && !data ? '·' : n as number}</span><span className="pipe-l">{l}</span><span className="pipe-d">{d}</span>
+          </button>))}
+      </div>
       <Card flush>
         <div className="toolbar">
           <div className="seg">

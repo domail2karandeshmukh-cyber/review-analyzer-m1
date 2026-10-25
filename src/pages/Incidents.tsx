@@ -20,7 +20,7 @@ export function Incidents() {
       <Card flush>
         <div className="toolbar"><label className="row small muted" style={{ marginLeft: 'auto' }}><input type="checkbox" checked={archived} onChange={e => setArchived(e.target.checked)} /> Include archived scenario runs</label></div>
         <ErrorBox error={error} />
-        {loading && !data ? <Loading /> : (data ?? []).length === 0 ? <Empty title="No incidents">Start a scenario in the Scenario Center or report an incident.</Empty> : (
+        {loading && !data ? <Loading /> : (data ?? []).length === 0 ? <div className="quiet"><div className="quiet-ring"><ShieldCheck size={26} /></div><h2>All quiet.</h2><p>No open incident. When the detection feed raises one, it lands here and the investigator is notified.</p><div className="row wrap" style={{ justifyContent: 'center' }}><Link className="btn" to="/scenarios">Scenario center</Link><Link className="btn primary" to="/present">Open present mode</Link></div></div> : (
           <div className="table-wrap"><table className="t responsive">
             <thead><tr><th>Incident</th><th>Severity</th><th>Status</th><th>Investigator</th><th>Assessments</th><th>Actions</th><th>Detected</th></tr></thead>
             <tbody>{data!.map(i => (
