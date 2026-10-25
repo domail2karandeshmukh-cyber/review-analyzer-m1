@@ -52,7 +52,7 @@
 .fair-edit .h { color: var(--text-4); font-size: 11px; font-weight: 550; text-align: right; }
 .fair-edit .bad { border-color: var(--crit); }
 .mini-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.mini-kpis div { border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; }
+.mini-kpis > div { border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; }
 .mini-kpis span { font-size: 11px; color: var(--text-4); display: block; }
 .mini-kpis b { font-size: 16px; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 @media (max-width: 1280px) { .q-grid { grid-template-columns: 1fr; } }
@@ -116,9 +116,11 @@
 .bp .cover .meta { display: grid; grid-template-columns: 34mm 1fr; gap: 2mm 6mm; font-size: 10pt; border-top: 1px solid var(--border); padding-top: 6mm; }
 .bp .cover .meta dt { color: var(--text-4); } .bp .cover .meta dd { margin: 0; color: var(--text); }
 .bp .cover .rule { height: 4px; width: 28mm; background: var(--accent); margin-bottom: 8mm; }
+.bp .res-opts { white-space: nowrap; font-size: 8pt; color: var(--text-3); }
+.bp .res-opts span { display: block; line-height: 1.6; }
 .bp .resolve { width: 26mm; height: 8mm; border: 1px solid var(--border-2); border-radius: 2px; }
 .bp .lec .curve-res { stroke-width: 2; }
-@media (max-width: 960px) {
+@media screen and (max-width: 960px) {
   .bp-sheet { width: 100%; min-height: 0; padding: 22px 18px; }
   .bp .cols, .bp .cols3 { grid-template-columns: 1fr; }
 }
@@ -126,7 +128,7 @@
   @page { size: A4; margin: 0; }
   .bp-tools, .no-print { display: none !important; }
   .bp { gap: 0; display: block; }
-  .bp-sheet { box-shadow: none; border-radius: 0; width: 210mm; height: 297mm; min-height: 0; overflow: hidden; break-after: page; page-break-after: always; }
+  .bp-sheet { box-shadow: none; border-radius: 0; width: 210mm; min-height: 297mm; height: auto; break-after: page; page-break-after: always; }
   .bp-sheet:last-child { break-after: auto; page-break-after: auto; }
   html, body { background: #fff !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }

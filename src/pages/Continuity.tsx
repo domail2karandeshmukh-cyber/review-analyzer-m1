@@ -13,7 +13,7 @@ const PLAN: Record<string, { label: string; tone: any }> = {
 };
 const hrs = (h?: number | null) => (h === null || h === undefined ? '—' : h >= 48 && h % 24 === 0 ? `${h / 24} d` : `${h} h`);
 const isCase = (n?: string | null) => !!n && n.startsWith('Case-study record:');
-const stripCase = (n?: string | null) => (n ?? '').replace(/^Case-study record:\s*/, '');
+const stripCase = (n?: string | null) => { const s = (n ?? '').replace(/^Case-study record:\s*/, ''); return s.charAt(0).toUpperCase() + s.slice(1); };
 
 function lastTimed(p: P) { return (p.tests ?? []).find((t: any) => t.achieved_rto_hours !== null && t.achieved_rto_hours !== undefined); }
 

@@ -102,6 +102,12 @@ export function LecChart({ series, tolerance, toleranceLabel = 'Tolerance', mark
   );
 }
 
+/** Control with the largest marginal effect on this risk's expected loss. */
+function strongest(r: QRisk) {
+  const all = controlValues([r]);
+  return all[0];
+}
+
 /* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
@@ -169,7 +175,7 @@ export default function Quant() {
             <tbody>{rows.map(s => {
               const ap = apById[s.risk.appetite_id ?? ''];
               const catOver = ap && sim.byAppetite[ap.id]?.residual.p90 > Number(ap.max_annual_loss);
-              const top = values.find(v => v.risks.includes(s.risk.code) && (s.risk.controls ?? []).some(c => c.code === v.code));
+              const top = strongest(s.risk);
               const red = 1 - s.residual.mean / (s.inherent.mean || 1);
               return (
                 <tr key={s.risk.id} className={`click ${open === s.risk.id ? 'on' : ''}`} onClick={() => setSp({ r: s.risk.id })}>

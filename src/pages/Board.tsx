@@ -110,7 +110,7 @@ export default function Board() {
               <div className="kfig"><div className="v">{breached.length}<span style={{ fontSize: '11pt', color: 'var(--text-3)' }}> / {appetite.length}</span></div><div className="k">appetite categories breached</div></div>
             </div>
             {summary.map((s, i) => <p key={i} className={i === 0 ? 'lead' : ''} style={{ marginBottom: '2.5mm' }}>{s}</p>)}
-            {decisions.length > 0 && <div className="callout" style={{ marginTop: '4mm' }}><b>{decisions.length} decisions are requested</b> from the Board (section 9).</div>}
+            {decisions.length > 0 && <div className="callout" style={{ marginTop: '4mm' }}><b>{decisions.length} decisions are requested</b> from the Board (section 10).</div>}
           </section>
           <section>
             <h2><span className="no">2</span>Risk profile</h2>
@@ -128,7 +128,15 @@ export default function Board() {
                 <p className="note" style={{ marginTop: '2mm' }}>Rows: likelihood 1–4. Columns: impact 1–4. Score = L × I (1–3 low, 4–7 moderate, 8–11 high, 12–16 critical).</p>
               </div>
             </div>
-            <h3>Risk appetite</h3>
+          </section>
+          <Foot />
+        </div>
+
+        {/* ---------------- 3–5 ---------------- */}
+        <div className="bp-sheet">
+          <Head t="Appetite and quantified exposure" />
+          <section>
+            <h2><span className="no">3</span>Risk appetite</h2>
             <table className="bt">
               <thead><tr><th style={{ width: '24%' }}>Category</th><th>Statement</th><th className="n">Score limit</th><th>Status</th></tr></thead>
               <tbody>{appetite.map(a => { const br = a.risks.filter((r: any) => r.breach); return (
@@ -136,14 +144,8 @@ export default function Board() {
                   <td>{br.length ? <span className="tag red">Breached · {br.map((r: any) => r.code).join(', ')}</span> : <span className="tag green">Within</span>}</td></tr>); })}</tbody>
             </table>
           </section>
-          <Foot />
-        </div>
-
-        {/* ---------------- 3–5 ---------------- */}
-        <div className="bp-sheet">
-          <Head t="Exposure, compliance and controls" />
           <section>
-            <h2><span className="no">3</span>Quantified exposure</h2>
+            <h2><span className="no">4</span>Quantified exposure</h2>
             <p>Each risk's frequency and loss ranges were simulated {ITERATIONS.toLocaleString('en')} times (FAIR-style, Beta-PERT). The curve shows the probability that total annual loss exceeds each amount.</p>
             {!sim ? <Loading rows={5} /> : <>
               <div className="cols3" style={{ margin: '4mm 0' }}>
@@ -166,8 +168,13 @@ export default function Board() {
               {quantOver.length > 0 && <p style={{ marginTop: '2mm' }}><b>Over tolerance in euros:</b> {list(quantOver.map(a => `${a.category.toLowerCase()} (P90 ${fmtMoneyShort(sim.byAppetite[a.id].residual.p90)} vs ${fmtMoneyShort(a.max_annual_loss)})`))}.</p>}
             </>}
           </section>
+          <Foot />
+        </div>
+
+        <div className="bp-sheet">
+          <Head t="Compliance, controls and incidents" />
           <section>
-            <h2><span className="no">4</span>Compliance posture</h2>
+            <h2><span className="no">5</span>Compliance posture</h2>
             <table className="bt">
               <thead><tr><th>Framework</th><th className="n">Met</th><th className="n">Partial</th><th className="n">Gap</th><th style={{ width: '32%' }}>Coverage</th><th className="n">%</th></tr></thead>
               <tbody>{fws.map(f => (
@@ -178,7 +185,7 @@ export default function Board() {
             <p className="note" style={{ marginTop: '1.5mm' }}>Coverage = (met + ½ partial) ÷ requirements in scope. A requirement is met when a mapped control is implemented and operating effectively.</p>
           </section>
           <section>
-            <h2><span className="no">5</span>Controls and monitoring</h2>
+            <h2><span className="no">6</span>Controls and monitoring</h2>
             <div className="cols" style={{ gridTemplateColumns: '1fr 1.6fr' }}>
               <div>
                 <div className="kfig"><div className="v">{pc(effPct)}</div><div className="k">{ctl.effective} of {ctl.total} controls operating effectively · {ctl.partial} partial · {ctl.not_assessed} not assessed</div></div>
@@ -192,14 +199,8 @@ export default function Board() {
               </table>
             </div>
           </section>
-          <Foot />
-        </div>
-
-        {/* ---------------- 6–8 ---------------- */}
-        <div className="bp-sheet">
-          <Head t="Incidents, third parties, continuity, EBIOS RM" />
           <section>
-            <h2><span className="no">6</span>Incidents and regulatory deadlines</h2>
+            <h2><span className="no">7</span>Incidents and regulatory deadlines</h2>
             {(b.incident_list ?? []).length === 0 ? <p>No incident was recorded in the last 90 days.</p> : (
               <table className="bt"><thead><tr><th>Incident</th><th>Severity</th><th>Status</th><th>Detected</th><th className="n">Exposure</th></tr></thead>
                 <tbody>{b.incident_list.map((i: any) => <tr key={i.ref}><td><b>{i.ref}</b> {i.title}</td><td>{i.severity}</td><td>{i.status}</td><td>{fmtDate(i.detected_at)}</td><td className="n">{i.exposure ? fmtMoney(i.exposure) : '—'}</td></tr>)}</tbody></table>
@@ -209,8 +210,14 @@ export default function Board() {
                 <tbody>{b.reg_due.map((n: any) => <tr key={n.id}><td><b>{n.ref}</b> {n.stage}</td><td>{n.regime}</td><td>{fmtDateTime(n.due_at)}</td></tr>)}</tbody></table>
             ) : <p className="note">No regulatory notification is pending (NIS2 24 h / 72 h / 1 month, GDPR 72 h, DORA 4 h / 24 h clocks are tracked per incident).</p>}
           </section>
+          <Foot />
+        </div>
+
+        {/* ---------------- 6–8 ---------------- */}
+        <div className="bp-sheet">
+          <Head t="Third parties, continuity, EBIOS RM" />
           <section>
-            <h2><span className="no">7</span>Third parties and continuity</h2>
+            <h2><span className="no">8</span>Third parties and continuity</h2>
             <div className="cols">
               <div>
                 <h3 style={{ marginTop: 0 }}>Critical and high-tier suppliers</h3>
@@ -229,7 +236,7 @@ export default function Board() {
             </div>
           </section>
           <section>
-            <h2><span className="no">8</span>EBIOS RM: residual risks</h2>
+            <h2><span className="no">9</span>EBIOS RM: residual risks</h2>
             <p>Study “{b.ebios?.title}”: {b.ebios?.measures_done} of {b.ebios?.measures} security measures (PACS) completed; {b.ebios?.pending_acceptance} residual risks await formal acceptance.</p>
             <table className="bt"><thead><tr><th>Residual risk</th><th className="n">Before (G×V)</th><th className="n">After (G×V)</th><th>Proposed decision</th><th>Status</th></tr></thead>
               <tbody>{(b.residuals ?? []).map((r: any) => (
@@ -242,15 +249,20 @@ export default function Board() {
 
         {/* ---------------- 9 + appendix ---------------- */}
         <div className="bp-sheet">
-          <Head t="Decisions and assurance" />
+          <Head t="Decisions requested" />
           <section>
-            <h2><span className="no">9</span>Decisions requested from the Board</h2>
+            <h2><span className="no">10</span>Decisions requested from the Board</h2>
             <table className="bt">
               <thead><tr><th style={{ width: 22 }}>#</th><th>Decision requested</th><th>Basis</th><th>Resolution</th></tr></thead>
               <tbody>{decisions.map((d, i) => (
-                <tr key={i}><td><b>{i + 1}</b></td><td style={{ fontWeight: 600 }}>{d.d}</td><td style={{ fontSize: '8.5pt', color: 'var(--text-2)' }}>{d.basis}</td><td><div className="resolve" /><div className="note">Approve · Reject · Defer</div></td></tr>))}</tbody>
+                <tr key={i}><td><b>{i + 1}</b></td><td style={{ fontWeight: 600 }}>{d.d}</td><td style={{ fontSize: '8.5pt', color: 'var(--text-2)' }}>{d.basis}</td><td className="res-opts"><span>☐ Approve</span><span>☐ Reject</span><span>☐ Defer</span></td></tr>))}</tbody>
             </table>
           </section>
+          <Foot />
+        </div>
+
+        <div className="bp-sheet">
+          <Head t="Assurance and method" />
           <section>
             <h2><span className="no">A</span>Assurance statement and method</h2>
             <div className="callout" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>

@@ -524,9 +524,9 @@ function W5({ L, can, open, controls, onSaved }: WProps & { controls: Data['cont
                 <div>
                   <div className="row" style={{ gap: 6 }}><Ref r={r.ref} /><span className="tt">{r.title}</span>{can && <EditBtn on={() => open('residual', 5, r)} />}</div>
                   <div className="mv" style={{ marginTop: 5 }}>
-                    <G g={d.gravity_before} label={false} /><V v={d.likelihood_before} label={false} /><span className="xs">{RISK_ZONE[z0]}</span>
+                    <span className="row nowrap" style={{ gap: 5 }}><G g={d.gravity_before} label={false} /><V v={d.likelihood_before} label={false} /><span className="xs">{RISK_ZONE[z0]}</span></span>
                     <span>→</span>
-                    <G g={d.gravity_after} label={false} /><V v={d.likelihood_after} label={false} /><span className="xs">{RISK_ZONE[z1]}</span>
+                    <span className="row nowrap" style={{ gap: 5 }}><G g={d.gravity_after} label={false} /><V v={d.likelihood_after} label={false} /><span className="xs" style={{ color: z1 === 1 ? 'var(--pass-2)' : z1 === 2 ? 'var(--medium)' : 'var(--crit-2)' }}>{RISK_ZONE[z1]}</span></span>
                   </div>
                 </div>
                 <div className="stack tight" style={{ alignItems: 'flex-end' }}>
@@ -537,6 +537,9 @@ function W5({ L, can, open, controls, onSaved }: WProps & { controls: Data['cont
               </div>
             );
           })}
+          <div className="eb-formula" style={{ borderBottom: 0, borderTop: '1px solid var(--border)' }}>
+            Acceptance criteria used in this study: <b>acceptable</b> when gravity × likelihood ≤ 3; <b>tolerable under control</b> from 4 to 8; <b>unacceptable</b> at 9 or more, or G4 with likelihood V3+. Residual risk must be explicitly accepted by the accountable owner.
+          </div>
         </Card>
       </div>
 
@@ -698,7 +701,7 @@ function ItemEditor({ data, by, item, kind, workshop, onClose, onSaved }: { data
       case 'select': return <select className="select" value={v ?? ''} onChange={e => set(f.k, e.target.value)}>{(f.options?.() ?? []).map(o => <option key={o.v} value={o.v}>{o.l}</option>)}</select>;
       case 'bool': return <label className="check"><input type="checkbox" checked={!!v} onChange={e => set(f.k, e.target.checked)} /><span className="small">{v ? 'Yes' : 'No'}</span></label>;
       case 'scale': return <div className="eb-scalepick">{Array.from({ length: f.max ?? 4 }).map((_, i) => <button type="button" key={i} className={Number(v) === i + 1 ? 'on' : ''} onClick={() => set(f.k, i + 1)}>{i + 1}</button>)}</div>;
-      case 'multi': return <div className="eb-multi">{(f.options?.() ?? []).map(o => { const on = (v ?? []).includes(o.v); return <button type="button" key={o.v} className={on ? 'on' : ''} title={o.l} onClick={() => set(f.k, on ? v.filter((x: string) => x !== o.v) : [...(v ?? []), o.v])}>{o.l.length > 34 ? o.v : o.l}</button>; })}</div>;
+      case 'multi': return <div className="eb-multi">{(f.options?.() ?? []).map(o => { const on = (v ?? []).includes(o.v); return <button type="button" key={o.v} className={on ? 'on' : ''} title={o.l} onClick={() => set(f.k, on ? v.filter((x: string) => x !== o.v) : [...(v ?? []), o.v])}>{o.l.length > 34 ? o.l.split(' · ')[0] : o.l}</button>; })}</div>;
       case 'steps': return <div className="stack tight">{PHASES.map(p => {
         const cur = (v ?? []).find((s: any) => s.phase === p.k)?.text ?? '';
         return <div key={p.k}><div className="xs muted" style={{ marginBottom: 3 }}>{p.k} · {p.fr} — {p.d}</div>
