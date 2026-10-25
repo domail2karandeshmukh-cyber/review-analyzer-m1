@@ -46,16 +46,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      if (data.session) await reloadSession();
-      setLoading(false);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_e, s) => {
+    let live = true;
+    // Never await Supabase calls inside onAuthStateChange: it holds the auth lock and deadlocks.
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (!live) return;
       setSession(s);
-      if (s) await reloadSession(); else setMemberships([]);
+      setTimeout(async () => {
+        if (s) await reloadSession(); else setMemberships([]);
+        if (live) setLoading(false);
+      }, 0);
     });
-    return () => sub.subscription.unsubscribe();
+    // Safety net: never leave the user on a spinner.
+    const t = setTimeout(() => live && setLoading(false), 8000);
+    return () => { live = false; clearTimeout(t); sub.subscription.unsubscribe(); };
   }, [reloadSession]);
 
   const current = useMemo(
