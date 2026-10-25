@@ -46,7 +46,7 @@ export function LecChart({ series, tolerance, toleranceLabel = 'Tolerance', mark
     ro.observe(el); setW(Math.max(260, el.clientWidth));
     return () => ro.disconnect();
   }, []);
-  const pad = compact ? { l: 34, r: 10, t: 10, b: 22 } : { l: 48, r: 18, t: 18, b: 44 };
+  const pad = compact ? { l: 34, r: 10, t: 10, b: 22 } : { l: 60, r: 18, t: 18, b: 44 };
   const allMax = Math.max(...series.map(s => s.dist.p99 || s.dist.p95), tolerance ?? 0, 1);
   const positives = series.flatMap(s => [s.dist.p10 || Infinity, s.dist.p50 || Infinity]).filter(v => v > 0 && Number.isFinite(v));
   const xmin = Math.max(1000, 10 ** Math.floor(Math.log10(Math.min(...positives, allMax / 50))));
@@ -58,8 +58,10 @@ export function LecChart({ series, tolerance, toleranceLabel = 'Tolerance', mark
   const grid = useMemo(() => logGrid(xmin, xmax, compact ? 60 : 160), [xmin, xmax, compact]);
   const path = (d: Dist) => grid.map((x, i) => `${i ? 'L' : 'M'}${X(x).toFixed(1)},${Y(exceed(d, x)).toFixed(1)}`).join('');
   const res = series.find(s => s.kind === 'res');
-  const xt = niceLogTicks(xmin, xmax).filter((_, i, a) => !compact || a.length < 7 || i % 2 === 0);
-  const yt = Array.from({ length: Math.round(ymax * 10) + 1 }, (_, i) => i / 10).filter((_, i, a) => !compact || i % 2 === 0 || i === a.length - 1);
+  const xt: number[] = [];
+  for (const v of niceLogTicks(xmin, xmax)) { if (!xt.length || X(v) - X(xt[xt.length - 1]) >= 52) xt.push(v); }
+  const ystep = ih / (ymax * 10) < 22 ? 0.2 : 0.1;
+  const yt = Array.from({ length: Math.floor(ymax / ystep + 1e-9) + 1 }, (_, i) => Math.round(i * ystep * 100) / 100);
   const hx = hover !== null ? 10 ** (Math.log10(xmin) + ((hover - pad.l) / iw) * (Math.log10(xmax) - Math.log10(xmin))) : null;
   return (
     <div className="lec" ref={ref}>
@@ -149,9 +151,12 @@ export default function Quant() {
 
       <div className="q-grid" style={{ marginBottom: 16 }}>
         <Card title="Loss exceedance curve · portfolio" sub="Probability that total annual loss exceeds each amount. Read it left to right: the further right the curve stays high, the fatter the tail."
-          actions={<div className="lec-legend"><span><i />Residual (with controls)</span><span><i className="inh" />Inherent</span><span><i className="tol" />Tolerance</span></div>}>
-          {!sim ? <Loading rows={8} /> : <LecChart series={[{ dist: sim.portfolio.inherent, kind: 'inh', label: 'Inherent' }, { dist: sim.portfolio.residual, kind: 'res', label: 'Residual' }]}
-            tolerance={tolerance} toleranceLabel="Combined appetite" />}
+>
+          {!sim ? <Loading rows={8} /> : <>
+            <LecChart series={[{ dist: sim.portfolio.inherent, kind: 'inh', label: 'Inherent' }, { dist: sim.portfolio.residual, kind: 'res', label: 'Residual' }]}
+              tolerance={tolerance} toleranceLabel="Combined appetite" />
+            <div className="lec-legend" style={{ marginTop: 8 }}><span><i />Residual (with controls)</span><span><i className="inh" />Inherent (no controls)</span><span><i className="tol" />Combined appetite: sum of category limits</span><span className="muted">Hover the chart to read exact probabilities</span></div>
+          </>}
         </Card>
         <Card title="Appetite by category" sub="Residual 1-in-10-year loss against each category's annual loss limit">
           {!sim ? <Loading rows={6} /> : appetite.map(a => {

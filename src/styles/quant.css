@@ -133,3 +133,4 @@
   html, body { background: #fff !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+.lec .mark-t, .lec .mark-s, .lec .tol-t { paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
