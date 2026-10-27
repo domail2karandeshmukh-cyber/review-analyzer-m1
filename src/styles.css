@@ -935,3 +935,5 @@ kbd { border-bottom-width: 1px; }
 }
 @media (max-width: 760px) { .subnav-in::before { display: none !important; } .subnav-in { justify-content: flex-start !important; } }
 .label-man { color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 5px; font-family: var(--mono); font-size: 10px; letter-spacing: .06em; background: transparent; }
+@media (max-width: 760px) { .list-row { flex-wrap: wrap; row-gap: 8px; } .list-row > .grow { flex: 1 1 100%; min-width: 0; } }
+@media (max-width: 760px) { .app2 .tabs { justify-content: flex-start; } }
