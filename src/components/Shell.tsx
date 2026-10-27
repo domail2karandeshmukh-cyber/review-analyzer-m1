@@ -4,7 +4,7 @@ import { NavLink, useLocation, useNavigate, Link } from 'react-router-dom';
 import {
   Home, Inbox, ShieldAlert, Building2, ListChecks, Stamp, Siren, Server, PlayCircle, ScrollText, FileBarChart2, Network, BookOpen, Bell, Search, Menu,
   LogOut, BellRing, X, CornerDownLeft, MonitorPlay, Radar, Calculator, Scale, ShieldCheck, FileText, Truck, LifeBuoy, Presentation, ChevronDown,
-  Sun, Moon, Waypoints, KeyRound, Compass, Crown,
+  Sun, Moon, Waypoints, KeyRound, Compass,
 } from 'lucide-react';
 import { useRpc, useSession } from '../lib/session';
 import { rpc } from '../lib/supabase';
@@ -107,7 +107,6 @@ function ShellInner({ children }: { children: ReactNode }) {
   const here = flat.filter(i => (i.to === '/' ? loc.pathname === '/' : loc.pathname.startsWith(i.to))).sort((a, b) => b.to.length - a.to.length)[0];
   const tasks = groups[0].items[1].count ?? 0;
   const section = groups.find(g => g.key === here?.gkey);
-  const level = (current as any)?.platform_role ?? 'member';
   const openMega = (k: string) => { if (closeT.current) window.clearTimeout(closeT.current); setMega(k); };
   const leaveMega = () => { if (closeT.current) window.clearTimeout(closeT.current); closeT.current = window.setTimeout(() => setMega(null), 160); };
   const mg = groups.find(g => g.key === mega);
@@ -134,7 +133,6 @@ function ShellInner({ children }: { children: ReactNode }) {
           <div style={{ position: 'relative' }}>
             <button className="nav-me" onClick={() => setMenu(m => !m)} aria-haspopup="menu" title={current?.full_name}>
               <Avatar name={current?.full_name} size="sm" />
-              {level !== 'member' && <span className={`lvl ${level}`}>{LEVEL_LABEL[level]}</span>}
             </button>
             {menu && (
               <div className="menu-pop" role="menu">
@@ -143,10 +141,9 @@ function ShellInner({ children }: { children: ReactNode }) {
                   <div style={{ minWidth: 0 }}>
                     <div className="strong" style={{ fontSize: 14 }}>{current?.full_name}</div>
                     <div className="xs muted">{current?.role}</div>
-                    <div className="row" style={{ gap: 6, marginTop: 6 }}>
-                      <span className={`lvl ${level}`}>{level === 'owner' && <Crown size={11} />}{LEVEL_LABEL[level]}</span>
-                      {current?.delegated_roles?.map((x, i) => <Badge key={i} tone="info">Acting for {x.from}</Badge>)}
-                    </div>
+                    {!!current?.delegated_roles?.length && <div className="row" style={{ gap: 6, marginTop: 6 }}>
+                      {current.delegated_roles.map((x, i) => <Badge key={i} tone="info">Acting for {x.from}</Badge>)}
+                    </div>}
                   </div>
                 </div>
                 {memberships.length > 1 && (
