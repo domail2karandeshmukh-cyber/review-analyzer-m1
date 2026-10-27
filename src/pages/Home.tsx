@@ -9,6 +9,7 @@ import type { SimResult } from '../lib/montecarlo';
 import { TASK, TASK_ICON, TASK_TONE } from './Overview';
 import { useTour } from '../components/Tour';
 import '../styles/home.css';
+import OpsMap from '../components/OpsMap';
 
 type Q = { key: string; icon: React.ReactNode; tone: string; title: string; sub: string; tag: React.ReactNode; to: string; urgency: number };
 
@@ -90,6 +91,15 @@ export default function Home() {
           <div className="ht-d">{breaches.length ? breaches.map((b: any) => b.title.split(' / ')[0].split(' (')[0]).join(', ') + '.' : 'All risks within tolerance.'}</div>
           <div className="ht-chips">{breaches.map((b: any) => <span key={b.id}>{b.code}</span>)}</div>
         </Link>
+      </section>
+
+      <section className="h-sec" id="map">
+        <div className="h-sh">
+          <div><div className="sec-k">Live operations</div><h2 className="sec-h">Where NOVATECH runs, and where the threat comes from.</h2>
+            <p className="sec-p muted">Headquarters in Angers, critical suppliers across Europe, and the finance laptop under attack from a staging host that is now blocked.</p></div>
+          <Link to="/vendors" className="btn">Third parties <ArrowRight size={14} /></Link>
+        </div>
+        <OpsMap />
       </section>
 
       <section className="h-sec" id="needs">
