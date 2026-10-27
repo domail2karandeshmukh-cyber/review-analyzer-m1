@@ -7,7 +7,7 @@ import '../styles/map.css';
 type Node = { id: string; name: string; sub: string; lat: number; lon: number; kind: 'hq' | 'vendor' | 'asset' | 'threat' };
 const NODES: Node[] = [
   { id: 'hq', name: 'NOVATECH Services', sub: 'Headquarters · Angers, France', lat: 47.4784, lon: -0.5632, kind: 'hq' },
-  { id: 'lt07', name: 'FIN-LT-07', sub: 'Finance laptop · ransomware precursor detected', lat: 47.30, lon: -0.45, kind: 'asset' },
+  { id: 'lt07', name: 'FIN-LT-07', sub: 'Finance laptop · ransomware precursor detected', lat: 47.05, lon: -0.35, kind: 'asset' },
   { id: 'nimbus', name: 'Nimbus Cloud Hosting', sub: 'Critical supplier · Paris region · exit plan in place', lat: 48.8566, lon: 2.3522, kind: 'vendor' },
   { id: 'vault', name: 'VaultBox Backup Storage', sub: 'Critical supplier · Frankfurt · exit plan in place', lat: 50.1109, lon: 8.6821, kind: 'vendor' },
   { id: 'ledger', name: 'LedgerOne ERP (SaaS)', sub: 'Critical supplier · Dublin', lat: 53.3498, lon: -6.2603, kind: 'vendor' },
@@ -22,25 +22,26 @@ function arc(a: L.LatLngTuple, b: L.LatLngTuple, bend = 0.18): L.LatLngTuple[] {
   for (let i = 0; i <= n; i++) { const t = i / n; const u = 1 - t; pts.push([u * u * a[0] + 2 * u * t * mx + t * t * b[0], u * u * a[1] + 2 * u * t * my + t * t * b[1]]); }
   return pts;
 }
-const icon = (kind: Node['kind']) => L.divIcon({ className: `om-pin om-${kind}`, html: kind === 'threat' ? '<i class="p"></i><i class="p d2"></i><b></b>' : kind === 'hq' ? '<i class="r"></i><b></b>' : '<b></b>', iconSize: [22, 22], iconAnchor: [11, 11] });
+const icon = (kind: Node['kind']) => L.divIcon({ className: `om-pin om-${kind}`, html: kind === 'threat' ? '<i class="p"></i><i class="p d2"></i><b></b>' : kind === 'hq' ? '<i class="r"></i><b></b>' : '<b></b>', iconSize: [28, 28], iconAnchor: [14, 14] });
 
 export default function OpsMap() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!ref.current) return;
-    const map = L.map(ref.current, { zoomControl: true, scrollWheelZoom: false, attributionControl: true, minZoom: 3, maxZoom: 12 });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19,
+    const map = L.map(ref.current, { zoomControl: false, scrollWheelZoom: false, dragging: false, doubleClickZoom: false, touchZoom: false, attributionControl: true, minZoom: 3, maxZoom: 12, zoomSnap: 0.25 });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' }).addTo(map);
     const by = Object.fromEntries(NODES.map(n => [n.id, [n.lat, n.lon] as L.LatLngTuple]));
-    DEPS.forEach(id => L.polyline(arc(by.hq, by[id]), { className: 'om-dep', color: '#2997ff', weight: 2, opacity: .8, dashArray: '6 6' }).addTo(map));
-    L.polyline(arc(by.threat, by.lt07, 0.3), { className: 'om-attack', color: '#ff453a', weight: 3, opacity: .95, dashArray: '8 7' }).addTo(map);
+    DEPS.forEach(id => L.polyline(arc(by.hq, by[id]), { className: 'om-dep', color: '#0071e3', weight: 2.5, opacity: .55 }).addTo(map));
+    L.polyline(arc(by.threat, by.lt07, 0.3), { color: '#ff3b30', weight: 8, opacity: .12 }).addTo(map);
+    L.polyline(arc(by.threat, by.lt07, 0.3), { className: 'om-attack', color: '#ff3b30', weight: 2.5, opacity: .95, dashArray: '10 8' }).addTo(map);
     NODES.forEach(n => {
-      const dir: L.Direction = n.id === 'threat' ? 'left' : n.id === 'ledger' ? 'left' : n.id === 'hq' ? 'top' : n.id === 'lt07' ? 'bottom' : 'right';
-      const off: L.PointTuple = n.id === 'threat' ? [-16, 14] : dir === 'left' ? [-14, 0] : dir === 'right' ? [14, 0] : dir === 'top' ? [0, -14] : [0, 14];
+      const dir: L.Direction = n.id === 'threat' ? 'left' : n.id === 'ledger' ? 'left' : n.id === 'hq' ? 'top' : n.id === 'lt07' ? 'bottom' : n.id === 'nimbus' ? 'bottom' : n.id === 'mail' ? 'top' : 'right';
+      const off: L.PointTuple = n.id === 'threat' ? [-18, 0] : n.id === 'hq' ? [0, -16] : n.id === 'lt07' ? [0, 16] : dir === 'left' ? [-14, 0] : dir === 'right' ? [14, 0] : dir === 'top' ? [0, -14] : [0, 14];
       L.marker([n.lat, n.lon], { icon: icon(n.kind), zIndexOffset: n.kind === 'hq' ? 500 : n.kind === 'threat' ? 400 : 0 }).addTo(map)
         .bindTooltip(`<b>${n.name}</b><span>${n.sub}</span>`, { direction: dir, offset: off, permanent: n.kind !== 'vendor', className: `om-tip om-tip-${n.kind}` });
     });
-    map.fitBounds(L.latLngBounds(NODES.map(n => [n.lat, n.lon] as L.LatLngTuple)), { paddingTopLeft: [60, 70], paddingBottomRight: [80, 90] });
+    map.setView([50.2, 14.5], 5);
     const ro = new ResizeObserver(() => map.invalidateSize()); ro.observe(ref.current);
     return () => { ro.disconnect(); map.remove(); };
   }, []);

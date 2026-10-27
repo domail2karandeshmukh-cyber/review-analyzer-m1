@@ -1,32 +1,31 @@
-.opsmap { position: relative; border-radius: 28px; overflow: hidden; background: #0b1020; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 40px 100px -40px rgba(0,30,90,.5); }
-.om-canvas { width: 100%; height: clamp(360px, 46vw, 560px); background: #0b1020; }
-.opsmap .leaflet-container { font-family: var(--font); background: #0b1020; }
-.opsmap .leaflet-control-zoom a { background: rgba(17,20,36,.9); color: #e6e9f2; border-color: rgba(255,255,255,.12); }
-.opsmap .leaflet-control-attribution { background: rgba(11,16,32,.7); color: #8b93ad; font-size: 10px; }
-.opsmap .leaflet-control-attribution a { color: #a5abc4; }
+.opsmap { position: relative; border-radius: 28px; overflow: hidden; background: #e9eef5; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 30px 80px -40px rgba(0,40,100,.35); }
+.om-canvas { width: 100%; height: clamp(380px, 46vw, 580px); background: #e9eef5; }
+.opsmap .leaflet-container { font-family: var(--font); background: #e9eef5; }
+.opsmap .leaflet-tile-pane { filter: saturate(.75) contrast(.95); }
+.opsmap .leaflet-control-attribution { background: rgba(255,255,255,.7); color: #6e6e73; font-size: 10px; }
+.opsmap .leaflet-control-attribution a { color: #0071e3; }
 .om-pin { position: relative; }
-.om-pin b { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid #fff; box-shadow: 0 0 0 3px rgba(0,0,0,.35); }
-.om-hq b { background: #2997ff; width: 14px; height: 14px; }
-.om-vendor b { background: #fff; border-color: #2997ff; }
-.om-asset b { background: #ffb340; }
-.om-threat b { background: #ff453a; width: 14px; height: 14px; }
-.om-pin i { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-.om-hq i.r { border: 2px solid #2997ff; animation: omRing 2.6s ease-out infinite; }
-.om-threat i.p { background: rgba(255,69,58,.45); animation: omPulse 2s ease-out infinite; }
+.om-pin b { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; border-radius: 50%; transform: translate(-50%, -50%); border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.om-hq b { background: #0071e3; width: 20px; height: 20px; }
+.om-vendor b { background: #fff; border-color: #0071e3; }
+.om-asset b { background: #ff9f0a; width: 18px; height: 18px; }
+.om-threat b { background: #ff3b30; width: 20px; height: 20px; }
+.om-pin i { position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+.om-hq i.r { border: 2px solid #0071e3; animation: omRing 2.6s ease-out infinite; }
+.om-threat i.p { background: rgba(255,59,48,.35); animation: omPulse 2s ease-out infinite; }
 .om-threat i.p.d2 { animation-delay: 1s; }
-.om-dep { animation: omFlow 1.8s linear infinite; filter: drop-shadow(0 0 3px rgba(41,151,255,.6)); }
-.om-attack { animation: omFlow .8s linear infinite; filter: drop-shadow(0 0 4px rgba(255,69,58,.8)); }
-.om-tip { background: rgba(17,20,36,.92) !important; color: #f0f2f8 !important; border: 1px solid rgba(255,255,255,.12) !important; border-radius: 10px !important; padding: 6px 10px !important; box-shadow: 0 10px 30px rgba(0,0,0,.4) !important; font-size: 12.5px; line-height: 1.3; }
+.om-dep { filter: drop-shadow(0 1px 2px rgba(0,113,227,.3)); }
+.om-attack { animation: omFlow .9s linear infinite; }
+.om-tip { background: #fff !important; color: #1d1d1f !important; border: 0 !important; border-radius: 12px !important; padding: 8px 12px !important; box-shadow: 0 8px 24px rgba(0,0,0,.14), 0 0 0 1px rgba(0,0,0,.05) !important; font-size: 13px; line-height: 1.3; }
 .om-tip::before { display: none !important; }
-.om-tip b { display: block; font-weight: 650; } .om-tip span { display: block; color: #a5abc4; font-size: 11.5px; }
-.om-tip-threat b { color: #ff8a80; }
-.om-tip-asset b { color: #ffd089; } .om-tip-hq b { color: #8ec5ff; }
-.om-legend { position: absolute; left: 16px; bottom: 14px; z-index: 500; display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #c6cbe0; padding: 8px 12px; border-radius: 12px; background: rgba(11,16,32,.75); backdrop-filter: blur(8px); }
+.om-tip b { display: block; font-weight: 650; letter-spacing: -0.01em; } .om-tip span { display: block; color: #6e6e73; font-size: 11.5px; margin-top: 1px; }
+.om-tip-threat b { color: #d70015; } .om-tip-asset b { color: #c25500; } .om-tip-hq b { color: #0066cc; }
+.om-legend { position: absolute; left: 16px; bottom: 14px; z-index: 500; display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: #1d1d1f; padding: 9px 14px; border-radius: 99px; background: rgba(255,255,255,.9); backdrop-filter: blur(8px); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
 .om-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.om-legend i { width: 9px !important; height: 9px !important; min-width: 0; padding: 0; border-radius: 50%; display: inline-block; border: 1.5px solid #fff; }
-.om-legend i.k-hq { background: #2997ff; } .om-legend i.k-vendor { background: #fff; border-color: #2997ff; } .om-legend i.k-asset { background: #ffb340; } .om-legend i.k-threat { background: #ff453a; }
-@keyframes omFlow { to { stroke-dashoffset: -26; } }
-@keyframes omRing { 0% { width: 14px; height: 14px; opacity: .9; } 100% { width: 54px; height: 54px; opacity: 0; } }
-@keyframes omPulse { 0% { width: 14px; height: 14px; opacity: .7; } 100% { width: 60px; height: 60px; opacity: 0; } }
-@media (max-width: 760px) { .om-canvas { height: 380px; } .om-legend { gap: 10px; font-size: 11px; left: 10px; bottom: 10px; } .om-tip { font-size: 11px; } }
-@media (prefers-reduced-motion: reduce) { .om-dep, .om-attack, .om-hq i.r, .om-threat i.p { animation: none; } }
+.om-legend i { width: 10px !important; height: 10px !important; min-width: 0; padding: 0; border-radius: 50%; display: inline-block; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.1); }
+.om-legend i.k-hq { background: #0071e3; } .om-legend i.k-vendor { background: #fff; box-shadow: 0 0 0 2px #0071e3; border-color: #fff; } .om-legend i.k-asset { background: #ff9f0a; } .om-legend i.k-threat { background: #ff3b30; }
+@keyframes omFlow { to { stroke-dashoffset: -36; } }
+@keyframes omRing { 0% { width: 20px; height: 20px; opacity: .9; } 100% { width: 70px; height: 70px; opacity: 0; } }
+@keyframes omPulse { 0% { width: 20px; height: 20px; opacity: .7; } 100% { width: 76px; height: 76px; opacity: 0; } }
+@media (max-width: 760px) { .om-canvas { height: 400px; } .om-legend { gap: 10px; font-size: 11px; left: 10px; bottom: 10px; } .om-tip { font-size: 11px; padding: 5px 8px !important; } }
+@media (prefers-reduced-motion: reduce) { .om-attack, .om-hq i.r, .om-threat i.p { animation: none; } }
