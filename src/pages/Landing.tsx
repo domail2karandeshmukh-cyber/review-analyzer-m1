@@ -3,6 +3,7 @@ import {
   ArrowRight, ShieldAlert, Radar, Calculator, Scale, ShieldCheck, Siren, Truck, LifeBuoy, Presentation, ScrollText, Lock, Fingerprint, Activity, BadgeCheck,
 } from 'lucide-react';
 import { Logo, useTheme } from '../components/Shell';
+import ChainHero from '../components/ChainHero';
 import '../styles/landing.css';
 
 const STAGES = [
@@ -64,10 +65,7 @@ export default function Landing() {
             <Link to="/login" className="btn primary lg">Sign in to the platform <ArrowRight size={16} /></Link>
             <a href="#platform" className="btn lg">See what's inside</a>
           </div>
-          <div className="lp-shot">
-            <div className="lp-shot-bar"><i /><i /><i /><span>novatech-grc.vercel.app</span></div>
-            <img src="/product-home.png" alt="NOVATECH IRM home: priorities, risk appetite, compliance coverage and KRIs" />
-          </div>
+          <ChainHero />
         </div>
       </section>
 
@@ -91,6 +89,10 @@ export default function Landing() {
           <div className="lp-kicker">The platform</div>
           <h2>Everything a risk function runs on, connected.</h2>
           <p className="lp-lead">A risk links to its controls, the controls to framework requirements, the requirements to evidence, and every decision to the person who was allowed to take it.</p>
+          <div className="lp-shot">
+            <div className="lp-shot-bar"><i /><i /><i /><span>novatech-grc.vercel.app</span></div>
+            <img src="/product-home.png" alt="NOVATECH IRM home: priorities, risk appetite, compliance coverage and KRIs" loading="lazy" />
+          </div>
           <div className="lp-mods">
             {MODULES.map(([ic, t, d]) => <div key={t} className="lp-mod"><div className="ic">{ic}</div><div className="t">{t}</div><div className="d">{d}</div></div>)}
           </div>

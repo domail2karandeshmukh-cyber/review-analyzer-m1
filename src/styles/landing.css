@@ -79,3 +79,4 @@
 .lp-shot { border-radius: 20px; }
 :root[data-theme='light'] .lp-shot { box-shadow: 0 40px 100px -30px rgba(0, 60, 140, .28), 0 20px 50px rgba(0,0,0,.08); }
 :root[data-theme='light'] .lp-grid-bg { opacity: .35; }
+.lp-sec .lp-shot { margin-top: 36px; margin-bottom: 8px; }
