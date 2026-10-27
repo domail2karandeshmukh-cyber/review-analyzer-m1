@@ -42,7 +42,14 @@ export default function Audit() {
         desc="An append-only chain. Each entry stores the fingerprint of the one before it, so changing or deleting anything breaks the chain. The database itself refuses edits and deletions."
         actions={<button className="btn primary" onClick={verify} disabled={scan >= 0 && !chain}><ShieldCheck size={15} />Verify integrity</button>} />
       {chain && (chain.ok
-        ? <Notice kind="success">Chain intact. {chain.checked} entries recomputed by the server, every fingerprint matches. Head <span className="mono">{chain.head}</span>, checked {fmtDateTime(chain.verified_at)}.</Notice>
+        ? <div className="seal-banner" role="status">
+            <div className="seal-ring"><ShieldCheck size={30} /></div>
+            <div className="seal-body">
+              <div className="seal-h">Chain intact</div>
+              <div className="seal-p"><b>{chain.checked}</b> entries recomputed by the server, every fingerprint matches. Nothing was edited or deleted.</div>
+              <div className="seal-meta"><span>Head <span className="mono">{chain.head}</span></span><span>Checked {fmtDateTime(chain.verified_at)}</span></div>
+            </div>
+          </div>
         : <Notice kind="danger"><ShieldAlert size={14} /> Chain broken at entry #{chain.first_broken_id}. Records from that point cannot be trusted.</Notice>)}
       <Card flush className="no-print">
         <div className="toolbar">

@@ -998,3 +998,24 @@ kbd { border-bottom-width: 1px; }
   --critical: var(--crit); --critical-wash: var(--crit-wash); --critical-line: var(--crit-line);
   --pending: #ff9f0a; --pending-wash: rgba(255,159,10,.14); --pending-line: rgba(255,159,10,.4); }
 .present .pr-stage > .btn.lg { align-self: flex-start; }
+
+/* ===== Chain intact banner ===== */
+.seal-banner { display: flex; align-items: center; gap: 22px; padding: 24px 28px; margin-bottom: 22px; border-radius: 24px; color: var(--text);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--pass) 14%, var(--panel)), var(--panel) 60%); border: 1px solid color-mix(in srgb, var(--pass) 35%, transparent);
+  box-shadow: 0 20px 60px -30px color-mix(in srgb, var(--pass) 60%, transparent); animation: sealIn .7s cubic-bezier(.2,.8,.2,1); }
+.seal-ring { flex: none; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--pass); box-shadow: 0 0 0 8px color-mix(in srgb, var(--pass) 16%, transparent); animation: sealPulse 2.4s ease-in-out 1; }
+.seal-h { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+.seal-p { font-size: 15px; color: var(--text-2); margin-top: 6px; } .seal-p b { color: var(--text); }
+.seal-meta { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-3); margin-top: 8px; }
+@keyframes sealIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes sealPulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pass) 45%, transparent); } 60% { box-shadow: 0 0 0 22px transparent; } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--pass) 16%, transparent); } }
+@media (max-width: 760px) { .seal-banner { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px; } .seal-h { font-size: 24px; } }
+
+/* ===== Subtle motion polish (Apple style) ===== */
+.app2 .card, .app2 .ht, .app2 .hf, .app2 .hh { transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; }
+.app2 .btn.primary { transition: transform .15s, box-shadow .2s, background .2s; }
+.app2 .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -10px var(--accent); }
+.app2 .btn.primary:active { transform: translateY(0) scale(.98); }
+.app2 .page > .content > * { animation: pageIn .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .app2 .page > .content > *, .seal-banner, .seal-ring { animation: none; } }
