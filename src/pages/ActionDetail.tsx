@@ -51,7 +51,7 @@ export default function ActionDetail() {
           <Link to="/actions">Actions</Link><span>/</span><span className="mono">{a.ref}</span>
           {a.archived && <Badge tone="muted">Archived scenario run, read-only</Badge>}
           <Status s={a.status} />
-          <span className={`badge ${a.execution_mode === 'device' ? 'label-dev' : 'label-sim'}`}>{a.execution_mode === 'device' ? 'DEVICE EXECUTION' : 'SIMULATED EXECUTION'}</span>
+          <span className={`badge ${a.execution_mode === 'device' ? 'label-dev' : MANUAL.includes(a.action_type) ? 'label-man' : 'label-sim'}`}>{a.execution_mode === 'device' ? 'DEVICE EXECUTION' : MANUAL.includes(a.action_type) ? 'MANUAL EXECUTION' : 'SIMULATED EXECUTION'}</span>
         </div>
         <div className="row wrap no-print">
           {ops.reassign?.allowed && <button className="btn sm" onClick={() => setDialog('reassign')}><UserCog size={14} />Reassign</button>}
@@ -298,7 +298,9 @@ function ActionDialog({ kind, a, onClose, run }: { kind: string; a: any; onClose
       body = <div className="stack">
         <Notice kind={a.execution_mode === 'device' ? 'warn' : 'info'}>{a.execution_mode === 'device'
           ? 'A command will be queued for the enrolled test device. The device reports the result itself.'
-          : <>This is a <b>SIMULATED ACTION</b>: you will record what was done and the platform labels it as simulated. No production system is changed.</>}</Notice>
+          : MANUAL.includes(a.action_type)
+            ? <>This is a <b>MANUAL ACTION</b>: you carry it out yourself on the computer (for example Start → Shut down), then record what you did. The platform does not control the device.</>
+            : <>This is a <b>SIMULATED ACTION</b>: you will record what was done and the platform labels it as simulated. No production system is changed.</>}</Notice>
         <dl className="kv"><dt>Action</dt><dd>{a.type.name}</dd><dt>Target</dt><dd>{a.asset?.name ?? '—'}</dd><dt>Authorisation</dt><dd>{a.emergency ? 'Emergency procedure' : 'All required approvals granted'}</dd></dl>
       </div>;
       footer = <>{cancelBtn}<button className="btn primary" disabled={busy} onClick={() => go(() => run('grc_start_execution', { p_id: a.id }, 'Execution started'))}><Play size={15} />Start execution</button></>;
@@ -312,7 +314,7 @@ function ActionDialog({ kind, a, onClose, run }: { kind: string; a: any; onClose
       title = 'Record execution result';
       body = <div className="stack">
         <div className="seg"><button className={outcome === 'success' ? 'on' : ''} onClick={() => setOutcome('success')}>Completed successfully</button><button className={outcome === 'failed' ? 'on' : ''} onClick={() => setOutcome('failed')}>Failed</button></div>
-        <Field label="What was done (evidence)" help="Stored as an execution record labelled SIMULATED ACTION."><textarea className="textarea" value={text} onChange={e => setText(e.target.value)} placeholder="e.g. Account fin.user07 disabled in the identity provider; active sessions revoked." /></Field>
+        <Field label="What was done (evidence)" help={`Stored as an execution record labelled ${MANUAL.includes(a.action_type) ? 'MANUAL ACTION' : 'SIMULATED ACTION'}.`}><textarea className="textarea" value={text} onChange={e => setText(e.target.value)} placeholder={MANUAL.includes(a.action_type) ? 'e.g. FIN-LT-07 shut down by hand at 10:42; screen off, disconnected from the network.' : 'e.g. Account fin.user07 disabled in the identity provider; active sessions revoked.'} /></Field>
       </div>;
       footer = <>{cancelBtn}<button className="btn primary" disabled={busy || !text.trim()} onClick={() => go(() => run('grc_record_execution', { p_id: a.id, p_outcome: outcome, p_notes: text }, 'Execution recorded'))}>Record</button></>;
       break;
@@ -362,3 +364,5 @@ function ActionDialog({ kind, a, onClose, run }: { kind: string; a: any; onClose
   }
   return <Modal title={title} onClose={onClose} footer={footer} wide={kind === 'verify'}>{body}</Modal>;
 }
+
+const MANUAL = ['endpoint_shutdown', 'lock_device'];

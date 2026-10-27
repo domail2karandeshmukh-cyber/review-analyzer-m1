@@ -26,7 +26,7 @@ export function Severity({ s }: { s?: number | null }) {
 }
 export function ExecLabel({ label }: { label?: string | null }) {
   if (!label) return null;
-  return <span className={`badge ${label === 'SIMULATED ACTION' ? 'label-sim' : 'label-dev'}`}>{label}</span>;
+  return <span className={`badge ${label === 'SIMULATED ACTION' ? 'label-sim' : label === 'MANUAL ACTION' ? 'label-man' : 'label-dev'}`}>{label}</span>;
 }
 
 export function Avatar({ name, size }: { name?: string | null; size?: 'sm' | 'lg' }) {

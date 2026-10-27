@@ -934,3 +934,4 @@ kbd { border-bottom-width: 1px; }
   .app2 .page-head h1 { font-size: 32px; } .app2 .page-head p { font-size: 16px; }
 }
 @media (max-width: 760px) { .subnav-in::before { display: none !important; } .subnav-in { justify-content: flex-start !important; } }
+.label-man { color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 5px; font-family: var(--mono); font-size: 10px; letter-spacing: .06em; background: transparent; }
