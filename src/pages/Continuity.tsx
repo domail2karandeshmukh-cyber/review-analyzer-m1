@@ -224,7 +224,7 @@ function RecordTest({ p, onCancel, onDone }: { p: P; onCancel: () => void; onDon
   const [f, setF] = useState<any>({ tested_on: new Date().toISOString().slice(0, 10), test_type: 'Tabletop exercise', achieved_rto_hours: '', achieved_rpo_hours: '', result: '', notes: '' });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const set = (k: string) => (e: any) => setF({ ...f, [k]: e.target.value });
+  const set = (k: string) => (e: any) => { const v = e.target.value; setF((p: any) => ({ ...p, [k]: v })); };
   const rtoMiss = f.achieved_rto_hours !== '' && Number(f.achieved_rto_hours) > p.rto_hours;
   async function save() {
     setBusy(true); setErr(null);

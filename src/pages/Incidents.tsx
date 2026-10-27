@@ -50,7 +50,7 @@ function NewIncident({ onClose }: { onClose: () => void }) {
   const toast = useToast();
   const [f, setF] = useState<any>({ title: '', description: '', category: 'Security', severity: 2, risk_id: '', asset_id: '', assigned_to: '', financial_exposure: '' });
   const [err, setErr] = useState<string | null>(null);
-  const set = (k: string) => (e: any) => setF({ ...f, [k]: e.target.value });
+  const set = (k: string) => (e: any) => { const v = e.target.value; setF((p: any) => ({ ...p, [k]: v })); };
   return (
     <Modal title="Report an incident" onClose={onClose} wide footer={<><button className="btn" onClick={onClose}>Cancel</button>
       <button className="btn primary" disabled={!f.title} onClick={async () => { try { const id = await rpc<string>('grc_create_incident', { p_org: orgId, p: f }); toast('ok', 'Incident created'); bump(); nav(`/incidents/${id}`); } catch (e: any) { setErr(e.message); } }}>Create</button></>}>

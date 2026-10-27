@@ -18,7 +18,7 @@ export function NewActionModal({ onClose, incident, riskId }: { onClose: () => v
   });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const set = (k: string) => (e: any) => setF({ ...f, [k]: e.target.value });
+  const set = (k: string) => (e: any) => { const v = e.target.value; setF((p: any) => ({ ...p, [k]: v })); };
   const type = useMemo(() => org.data?.action_types?.find((t: any) => t.code === f.action_type), [org.data, f.action_type]);
   const isFinance = type && ['finance', 'banking'].includes(type.domain);
   const isTreatment = f.action_type === 'treatment_task';

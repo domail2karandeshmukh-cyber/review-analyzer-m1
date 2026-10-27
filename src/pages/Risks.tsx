@@ -125,7 +125,7 @@ function NewRisk({ onClose }: { onClose: () => void }) {
   const toast = useToast();
   const [f, setF] = useState<any>({ title: '', category: 'Operational', department_id: '', description: '', likelihood: 2, impact: 2, owner_id: '', treatment: 'Reduce' });
   const [err, setErr] = useState<string | null>(null);
-  const set = (k: string) => (e: any) => setF({ ...f, [k]: e.target.value });
+  const set = (k: string) => (e: any) => { const v = e.target.value; setF((p: any) => ({ ...p, [k]: v })); };
   return (
     <Modal title="Identify a new risk" sub="A risk cannot be saved without an accountable owner." onClose={onClose} wide
       footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" disabled={!f.title || !f.owner_id} onClick={async () => {
