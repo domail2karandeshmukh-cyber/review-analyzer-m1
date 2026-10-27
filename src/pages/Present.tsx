@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Maximize2, Play, ShieldCheck, X } from 'lucide-react';
+import { Maximize2, Play, ShieldCheck, X, Users, Stamp, Timer, Fingerprint } from 'lucide-react';
 import { rpc } from '../lib/supabase';
 import { useRpc, useSession } from '../lib/session';
 import { fmtMoney, fmtTime, initials, statusOf } from '../lib/format';
@@ -39,6 +39,21 @@ export default function Present() {
   const cur = run ? steps.find(x => !x.done) : null;
   const curIdx = cur ? steps.indexOf(cur) : doneAll ? steps.length : -1;
 
+  // Stamp overlay: shown for a few seconds whenever a step is newly completed
+  const [stamp, setStamp] = useState<{ title: string; who: string; n: number } | null>(null);
+  const lastIdx = useRef<number>(-2);
+  useEffect(() => {
+    if (!run) { lastIdx.current = -2; return; }
+    if (lastIdx.current >= 0 && curIdx > lastIdx.current) {
+      const done = steps[curIdx - 1];
+      if (done) { setStamp({ title: done.title, who: done.people?.join(', ') || done.who, n: done.n }); const t = setTimeout(() => setStamp(null), 3200); lastIdx.current = curIdx; return () => clearTimeout(t); }
+    }
+    lastIdx.current = curIdx;
+  }, [curIdx, run?.id]); // eslint-disable-line
+
+  const ROSTER = ['Karan Deshmukh', 'Nandini Vadlamudi', 'Vijay Bhosale', 'Srija Poudapally', 'Vandana Madem', 'Pavan Sanam'];
+  const activeNames = new Set<string>();
+
   useEffect(() => { if (current && current.org_id !== org && has) setOrg(org); }, [org, has]); // eslint-disable-line
   useEffect(() => {
     const k = (e: KeyboardEvent) => { if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); } };
@@ -66,6 +81,8 @@ export default function Present() {
   }
   if (cur && waiting.length === 0) (cur.people.length ? cur.people : [cur.who]).forEach((n: string) => waiting.push({ name: n, what: cur.who }));
 
+  waiting.forEach(w => activeNames.add(w.name));
+  const actedNames = new Set<string>(feed.map((e: any) => e.actor));
   const money = (s?.actions ?? []).filter((a: any) => a.amount).sort((a: any, b: any) => b.amount - a.amount)[0];
   const moneyState = !money ? null
     : ['completed', 'awaiting_verification'].includes(money.status) ? { t: 'Payment held — not released', c: 'seal' }
@@ -113,6 +130,12 @@ export default function Present() {
               <div className="pr-eyebrow seal">ALL {steps.length} STEPS SEALED · {clock}</div>
               <h1 className="pr-h">Incident <em>closed</em>.</h1>
               <p className="pr-p">Every decision was taken by the person company policy names, inside their authority, and is sealed in the ledger. Nobody approved their own request; nobody verified their own work.</p>
+              <div className="pr-sum">
+                <div><Timer size={16} /><b>{clock}</b><span>detect to close</span></div>
+                <div><Users size={16} /><b>{new Set((audit.data?.items ?? []).filter((e: any) => run && new Date(e.at) >= new Date(run.started_at) && e.actor && e.actor !== 'System').map((e: any) => e.actor)).size}</b><span>people, each in their own authority</span></div>
+                <div><Stamp size={16} /><b>{(audit.data?.items ?? []).filter((e: any) => run && new Date(e.at) >= new Date(run.started_at) && e.event === 'approval_granted').length}</b><span>approvals, none by the requester</span></div>
+                {chain.data?.ok && <div><Fingerprint size={16} /><b className="mono">{chain.data.head?.slice(0, 10)}</b><span>chain head, verified live</span></div>}
+              </div>
               {s.incident && <Link className="btn lg" to={`/incidents/${s.incident.id}`}>Open the incident file</Link>}
             </>
           ) : (
@@ -131,6 +154,14 @@ export default function Present() {
             </>
           )}
 
+          <div className="pr-roster" aria-label="Team">
+            {ROSTER.map(n => {
+              const first = n.split(' ')[0];
+              const on = activeNames.has(n) || activeNames.has(first);
+              const did = actedNames.has(n);
+              return <div key={n} className={`pr-ro ${on ? 'on' : ''} ${did ? 'did' : ''}`}><span className="pr-roav">{initials(n)}</span><span>{first}</span></div>;
+            })}
+          </div>
           <ol className="pr-track" aria-label="Scenario steps" style={{ ['--n' as any]: steps.length }}>
             {steps.map((x, i) => (
               <li key={x.n} className={x.done ? 'done' : i === curIdx ? 'now' : ''}>
@@ -175,6 +206,15 @@ export default function Present() {
           </div>
         </aside>
       </main>
+      {stamp && (
+        <div className="pr-stamp" key={stamp.n} role="status">
+          <div className="pr-stamp-in">
+            <span className="pr-stamp-k"><ShieldCheck size={18} />Step {stamp.n} sealed</span>
+            <b>{stamp.title}</b>
+            <span className="pr-stamp-who">{stamp.who}</span>
+          </div>
+        </div>
+      )}
       <footer className="pr-foot">Detection events come from a simulated feed · approvals, permissions, evidence and audit are real database records · press F for full screen</footer>
     </div>
   );
