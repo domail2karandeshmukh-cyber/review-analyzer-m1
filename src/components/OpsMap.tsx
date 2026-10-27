@@ -1,63 +1,55 @@
-import { useMemo, useState } from 'react';
-import { LAND } from '../lib/landPath';
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import '../styles/map.css';
 
-/* Equirectangular projection onto a 1000×500 canvas (same as landPath.ts). */
-const px = (lon: number, lat: number) => [((lon + 180) / 360) * 1000, ((90 - lat) / 180) * 500] as const;
-
-type Node = { id: string; name: string; sub: string; lon: number; lat: number; kind: 'hq' | 'vendor' | 'threat' | 'asset'; tier?: string; dx?: number; dy?: number; anchor?: 'start' | 'end' };
+/* Live operations map: real map tiles (CARTO dark, OpenStreetMap data) with NOVATECH's sites, suppliers and the threat source. */
+type Node = { id: string; name: string; sub: string; lat: number; lon: number; kind: 'hq' | 'vendor' | 'asset' | 'threat' };
 const NODES: Node[] = [
-  { id: 'hq', name: 'NOVATECH Services', sub: 'Headquarters · Angers', lon: -0.55, lat: 47.47, kind: 'hq', dx: -5, dy: -4, anchor: 'end' },
-  { id: 'lt07', name: 'FIN-LT-07', sub: 'Finance laptop · Angers', lon: -0.3, lat: 46.9, kind: 'asset', dx: 3.5, dy: 5.5 },
-  { id: 'nimbus', name: 'Nimbus Cloud Hosting', sub: 'Critical · Paris region', lon: 2.35, lat: 48.86, kind: 'vendor', tier: 'critical', dx: 1, dy: 6 },
-  { id: 'vault', name: 'VaultBox Backup', sub: 'Critical · Frankfurt', lon: 8.68, lat: 50.11, kind: 'vendor', tier: 'critical', dx: 4, dy: -3.5 },
-  { id: 'ledger', name: 'LedgerOne ERP', sub: 'Critical · Dublin', lon: -6.26, lat: 53.35, kind: 'vendor', tier: 'critical', dx: -4, dy: -3.5, anchor: 'end' },
-  { id: 'mail', name: 'SecureMail Gateway', sub: 'Medium · Amsterdam', lon: 4.9, lat: 52.37, kind: 'vendor', tier: 'medium', dx: 4, dy: -3.5 },
-  { id: 'threat', name: 'Ransomware staging host', sub: 'Unknown operator · blocked', lon: 37.6, lat: 55.75, kind: 'threat', dx: -7, dy: -5, anchor: 'end' },
+  { id: 'hq', name: 'NOVATECH Services', sub: 'Headquarters · Angers, France', lat: 47.4784, lon: -0.5632, kind: 'hq' },
+  { id: 'lt07', name: 'FIN-LT-07', sub: 'Finance laptop · ransomware precursor detected', lat: 47.30, lon: -0.45, kind: 'asset' },
+  { id: 'nimbus', name: 'Nimbus Cloud Hosting', sub: 'Critical supplier · Paris region · exit plan in place', lat: 48.8566, lon: 2.3522, kind: 'vendor' },
+  { id: 'vault', name: 'VaultBox Backup Storage', sub: 'Critical supplier · Frankfurt · exit plan in place', lat: 50.1109, lon: 8.6821, kind: 'vendor' },
+  { id: 'ledger', name: 'LedgerOne ERP (SaaS)', sub: 'Critical supplier · Dublin', lat: 53.3498, lon: -6.2603, kind: 'vendor' },
+  { id: 'mail', name: 'SecureMail Gateway', sub: 'Medium supplier · Amsterdam', lat: 52.3676, lon: 4.9041, kind: 'vendor' },
+  { id: 'threat', name: 'Ransomware staging host', sub: 'Unknown operator · outbound connection blocked', lat: 55.7558, lon: 37.6173, kind: 'threat' },
 ];
-const LINKS: [string, string, 'dep' | 'attack'][] = [
-  ['hq', 'nimbus', 'dep'], ['hq', 'vault', 'dep'], ['hq', 'ledger', 'dep'], ['hq', 'mail', 'dep'], ['threat', 'lt07', 'attack'],
-];
+const DEPS = ['nimbus', 'vault', 'ledger', 'mail'];
 
-/* View window: Europe plus the east, so the threat host sits on the right edge. */
-const VIEW = { x: 438, y: 78, w: 222, h: 92 };
+function arc(a: L.LatLngTuple, b: L.LatLngTuple, bend = 0.18): L.LatLngTuple[] {
+  const pts: L.LatLngTuple[] = []; const n = 48;
+  const mx = (a[0] + b[0]) / 2 + Math.abs(b[1] - a[1]) * bend * 0.35, my = (a[1] + b[1]) / 2;
+  for (let i = 0; i <= n; i++) { const t = i / n; const u = 1 - t; pts.push([u * u * a[0] + 2 * u * t * mx + t * t * b[0], u * u * a[1] + 2 * u * t * my + t * t * b[1]]); }
+  return pts;
+}
+const icon = (kind: Node['kind']) => L.divIcon({ className: `om-pin om-${kind}`, html: kind === 'threat' ? '<i class="p"></i><i class="p d2"></i><b></b>' : kind === 'hq' ? '<i class="r"></i><b></b>' : '<b></b>', iconSize: [22, 22], iconAnchor: [11, 11] });
 
-export default function OpsMap({ live = true }: { live?: boolean }) {
-  const [hover, setHover] = useState<string | null>(null);
-  const pts = useMemo(() => Object.fromEntries(NODES.map(n => [n.id, px(n.lon, n.lat)])), []);
-  const arc = (a: readonly [number, number], b: readonly [number, number]) => {
-    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2 - Math.abs(b[0] - a[0]) * 0.18;
-    return `M${a[0]} ${a[1]} Q${mx} ${my} ${b[0]} ${b[1]}`;
-  };
-  const h = NODES.find(n => n.id === hover);
+export default function OpsMap() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    const map = L.map(ref.current, { zoomControl: true, scrollWheelZoom: false, attributionControl: true, minZoom: 3, maxZoom: 12 });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' }).addTo(map);
+    const by = Object.fromEntries(NODES.map(n => [n.id, [n.lat, n.lon] as L.LatLngTuple]));
+    DEPS.forEach(id => L.polyline(arc(by.hq, by[id]), { className: 'om-dep', color: '#2997ff', weight: 2, opacity: .8, dashArray: '6 6' }).addTo(map));
+    L.polyline(arc(by.threat, by.lt07, 0.3), { className: 'om-attack', color: '#ff453a', weight: 3, opacity: .95, dashArray: '8 7' }).addTo(map);
+    NODES.forEach(n => {
+      const dir: L.Direction = n.id === 'threat' ? 'left' : n.id === 'ledger' ? 'left' : n.id === 'hq' ? 'top' : n.id === 'lt07' ? 'bottom' : 'right';
+      const off: L.PointTuple = n.id === 'threat' ? [-16, 14] : dir === 'left' ? [-14, 0] : dir === 'right' ? [14, 0] : dir === 'top' ? [0, -14] : [0, 14];
+      L.marker([n.lat, n.lon], { icon: icon(n.kind), zIndexOffset: n.kind === 'hq' ? 500 : n.kind === 'threat' ? 400 : 0 }).addTo(map)
+        .bindTooltip(`<b>${n.name}</b><span>${n.sub}</span>`, { direction: dir, offset: off, permanent: n.kind !== 'vendor', className: `om-tip om-tip-${n.kind}` });
+    });
+    map.fitBounds(L.latLngBounds(NODES.map(n => [n.lat, n.lon] as L.LatLngTuple)), { paddingTopLeft: [60, 70], paddingBottomRight: [80, 90] });
+    const ro = new ResizeObserver(() => map.invalidateSize()); ro.observe(ref.current);
+    return () => { ro.disconnect(); map.remove(); };
+  }, []);
   return (
-    <div className={`opsmap ${live ? 'live' : ''}`}>
-      <svg viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`} role="img" aria-label="Operations map: headquarters, critical suppliers and the threat source">
-        <defs>
-          <radialGradient id="om-glow"><stop offset="0" stopColor="var(--accent)" stopOpacity=".35" /><stop offset="1" stopColor="var(--accent)" stopOpacity="0" /></radialGradient>
-          <marker id="om-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--crit)" /></marker>
-        </defs>
-        <path d={LAND} className="om-land" />
-        <g className="om-grid">{[-10, 0, 10, 20, 30, 40].map(lon => <line key={lon} x1={px(lon, 0)[0]} x2={px(lon, 0)[0]} y1={VIEW.y} y2={VIEW.y + VIEW.h} />)}
-          {[40, 50, 60].map(lat => <line key={lat} y1={px(0, lat)[1]} y2={px(0, lat)[1]} x1={VIEW.x} x2={VIEW.x + VIEW.w} />)}</g>
-        <circle cx={pts.hq[0]} cy={pts.hq[1]} r="22" fill="url(#om-glow)" />
-        {LINKS.map(([a, b, k]) => <path key={a + b} d={arc(pts[a], pts[b])} className={`om-link ${k}`} markerEnd={k === 'attack' ? 'url(#om-arrow)' : undefined} />)}
-        {NODES.map(n => {
-          const [x, y] = pts[n.id];
-          return (
-            <g key={n.id} className={`om-node ${n.kind} ${n.tier ?? ''} ${hover === n.id ? 'hov' : ''}`} transform={`translate(${x} ${y})`} onMouseEnter={() => setHover(n.id)} onMouseLeave={() => setHover(null)}>
-              {n.kind === 'threat' && <><circle r="4" className="om-pulse" /><circle r="4" className="om-pulse d2" /></>}
-              {n.kind === 'hq' && <circle r="5" className="om-ring" />}
-              <circle r={n.kind === 'hq' ? 2.6 : n.kind === 'threat' ? 2.2 : 1.8} className="om-dot" />
-              <text x={n.dx ?? 4} y={n.dy ?? -3.5} textAnchor={n.anchor ?? 'start'} className="om-label">{n.name}</text>
-            </g>
-          );
-        })}
-      </svg>
+    <div className="opsmap">
+      <div ref={ref} className="om-canvas" role="img" aria-label="Operations map: headquarters, critical suppliers, affected asset and the threat source" />
       <div className="om-legend">
-        <span><i className="k-hq" />Headquarters</span><span><i className="k-vendor" />Critical supplier</span><span><i className="k-asset" />Affected asset</span><span><i className="k-threat" />Threat source</span>
+        <span><i className="k-hq" />Headquarters</span><span><i className="k-vendor" />Supplier</span><span><i className="k-asset" />Affected asset</span><span><i className="k-threat" />Threat source</span>
       </div>
-      <div className={`om-card ${h ? 'show' : ''}`}>{h && <><b>{h.name}</b><span>{h.sub}</span></>}</div>
     </div>
   );
 }
