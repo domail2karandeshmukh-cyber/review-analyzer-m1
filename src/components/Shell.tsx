@@ -31,7 +31,7 @@ export function useTheme() {
   return [theme, () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))] as const;
 }
 
-export const LEVEL_LABEL: Record<string, string> = { owner: 'Owner', admin: 'Admin', member: 'Member' };
+export const LEVEL_LABEL: Record<string, string> = { owner: 'Lead', admin: 'Admin', member: 'Member' };
 
 export function useNavGroups(): Group[] {
   const { orgId } = useSession();

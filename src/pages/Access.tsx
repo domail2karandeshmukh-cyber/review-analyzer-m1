@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Crown, ShieldCheck, Users, KeyRound } from 'lucide-react';
+import { ShieldCheck, Users, KeyRound } from 'lucide-react';
 import { rpc } from '../lib/supabase';
 import { useRpc } from '../lib/session';
 import { ago, fmtDate } from '../lib/format';
@@ -7,7 +7,7 @@ import { Avatar, Card, ErrorBox, Loading, Notice, PageHead, useToast } from '../
 import { LEVEL_LABEL } from '../components/Shell';
 
 const TIERS = [
-  { k: 'owner', icon: <Crown size={18} />, t: 'Owner', d: 'Created the platform. Grants and removes administrator access. There is exactly one owner and the level cannot be changed from the app.' },
+  { k: 'owner', icon: <KeyRound size={18} />, t: 'Lead', d: 'Manages platform access and grants administrator rights. There is one lead, and the level cannot be changed from the app.' },
   { k: 'admin', icon: <ShieldCheck size={18} />, t: 'Admin', d: 'Helps run the platform: manages member access and configuration. Cannot create other administrators.' },
   { k: 'member', icon: <Users size={18} />, t: 'Member', d: 'Works within their business role: assessments, approvals and executions follow the authority of that role.' },
 ];
@@ -19,7 +19,6 @@ export default function Access() {
   if (error) return <ErrorBox error={error} />;
   if (!data) return <Card><Loading rows={8} /></Card>;
   const me = data.me as string;
-  const owner = data.users.find((u: any) => u.level === 'owner');
   const set = async (u: any, level: string) => {
     setBusy(u.user_id);
     try { await rpc('grc_platform_set_level', { p_user: u.user_id, p_level: level }); toast('ok', `${u.name} is now ${LEVEL_LABEL[level]}`); reload(); }
@@ -30,19 +29,8 @@ export default function Access() {
 
   return (
     <>
-      <PageHead title="Team & access" desc="Two separate things decide what someone can do. Platform access (owner, admin, member) decides who runs the platform. The business role (CEO, CFO, RSSI…) decides what they may assess, approve or execute." />
+      <PageHead title="Team & access" desc="Two separate things decide what someone can do. Platform access (lead, admin, member) decides who runs the platform. The business role (CEO, CFO, RSSI…) decides what they may assess, approve or execute." />
 
-      {owner && (
-        <div className="ac-owner">
-          <div className="ac-glow" aria-hidden />
-          <Avatar name={owner.name} size="lg" />
-          <div style={{ minWidth: 0 }}>
-            <div className="row" style={{ gap: 8 }}><span className="lvl owner"><Crown size={11} />Owner</span></div>
-            <div className="ac-name">{owner.name}</div>
-            <div className="small muted">Platform owner · business role {owner.business_role}</div>
-          </div>
-        </div>
-      )}
 
       <div className="grid g3" style={{ marginTop: 16 }}>
         {TIERS.map(t => (
@@ -54,7 +42,7 @@ export default function Access() {
         ))}
       </div>
 
-      {me === 'member' && <div style={{ marginTop: 16 }}><Notice>You can see who has which access. Only the owner and administrators can change it.</Notice></div>}
+      {me === 'member' && <div style={{ marginTop: 16 }}><Notice>You can see who has which access. Only the lead and administrators can change it.</Notice></div>}
 
       <Section title="Group 1 team" sub="The six people presenting the platform" users={team} me={me} busy={busy} set={set} />
       <Section title="Case-study staff" sub="Supporting NOVATECH roles used in the scenarios (for example Accounts Payable for the payment hold)" users={others} me={me} busy={busy} set={set} />
@@ -79,9 +67,9 @@ function Section({ title, sub, users, me, busy, set }: { title: string; sub: str
                   <select className="select" style={{ width: 140, height: 30, padding: '2px 8px' }} value={u.level} disabled={busy === u.user_id} onChange={e => set(u, e.target.value)}>
                     <option value="admin">Admin</option><option value="member">Member</option>
                   </select>
-                ) : <span className={`lvl ${u.level}`}>{u.level === 'owner' && <Crown size={11} />}{LEVEL_LABEL[u.level]}</span>}
+                ) : <span className={`lvl ${u.level}`}>{LEVEL_LABEL[u.level]}</span>}
               </td>
-              <td data-label="Granted" className="small muted">{u.granted_by ? `${u.granted_by} · ${fmtDate(u.granted_at)}` : u.level === 'owner' ? 'Platform creator' : 'Initial setup'}</td>
+              <td data-label="Granted" className="small muted">{u.granted_by ? `${u.granted_by} · ${fmtDate(u.granted_at)}` : 'Initial setup'}</td>
               <td data-label="Last sign-in" className="small muted">{u.last_sign_in ? ago(u.last_sign_in) : 'Never'}</td>
             </tr>
           );
